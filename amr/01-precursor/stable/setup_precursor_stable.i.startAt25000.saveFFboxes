@@ -1,0 +1,233 @@
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#          SIMULATION CONTROL           #
+#.......................................#
+time.stop_time               =   26800.0     # Max (simulated) time to evolve
+time.max_step                =   -1         # Max number of time steps
+time.fixed_dt         =   0.10        # Use this constant dt if > 0
+time.cfl              =   0.95         # CFL factor
+
+incflo.verbose                           =   1          # incflo_level
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#            INPUT AND OUTPUT           #
+#.......................................#
+time.plot_interval            =  6000       # Steps between plot files
+time.checkpoint_interval      =  6000       # Steps between checkpoint files
+
+ABL.bndry_file = "bndry_file.nc"
+ABL.bndry_io_mode = 0
+ABL.bndry_planes = xlo
+ABL.bndry_output_start_time = 24999.0
+ABL.bndry_output_format = native
+ABL.bndry_var_names = velocity temperature tke
+
+io.restart_file                          = chk121692
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#            GEOMETRY & BCs             #
+#.......................................#
+geometry.prob_lo        =   0. 0.    0.  # Lo corner coordinates
+geometry.prob_hi        =   3840. 1280.  640.  # Hi corner coordinates
+amr.n_cell              =  1536 512  256    # Grid cells at coarsest AMRlevel
+amr.max_level           = 0           # Max AMR level in hierarchy 
+geometry.is_periodic    =   1   1   0   # Periodicity x y z (0/1)
+incflo.delp             =   0.  0.  0.  # Prescribed (cyclic) pressure gradient
+
+
+# Boundary conditions
+#xlo.type                                 = mass_inflow         
+#xlo.density                              = 1.225               
+#xlo.temperature                          = 290.0               
+#xlo.tke                                  = 0.0
+#xhi.type                                 = pressure_outflow    
+
+#ylo.type                                 = mass_inflow         
+#ylo.density                              = 1.225               
+#ylo.temperature                          = 290.0               
+#ylo.tke                                  = 0.0
+#yhi.type                                 = pressure_outflow     
+
+zlo.type                                 = wall_model
+zhi.type                                 = slip_wall
+zhi.temperature_type                     = fixed_gradient
+zhi.temperature                          = 0.003
+
+# MLMG settings
+nodal_proj.mg_rtol = 1.0e-6
+nodal_proj.mg_atol = 1.0e-12
+mac_proj.mg_rtol = 1.0e-6
+mac_proj.mg_atol = 1.0e-12
+diffusion.mg_rtol = 1.0e-6
+diffusion.mg_atol = 1.0e-12
+temperature_diffusion.mg_rtol = 1.0e-10
+temperature_diffusion.mg_atol = 1.0e-13
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#        Mesh refinement                #
+#.......................................#
+
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#               PHYSICS                 #
+#.......................................#
+ICNS.source_terms = CoriolisForcing ABLForcing BoussinesqBuoyancy ABLMeanBoussinesq
+incflo.velocity = 8.0 0.0 0.0
+
+ABLForcing.abl_forcing_height= 150.
+
+CoriolisForcing.latitude = 40.761  # Mayflower farm
+CoriolisForcing.north_vector = 0.0 1.0 0.0
+CoriolisForcing.east_vector = 1.0 0.0 0.0
+CoriolisForcing.rotational_time_period = 432000
+
+incflo.physics = ABL # Actuator
+
+BoussinesqBuoyancy.reference_temperature = 300.0
+ABL.reference_temperature = 300.0
+ABL.temperature_heights                  = 0.0 400.0 500.0 2000.0
+ABL.temperature_values                   = 300.0 300.0 310.0 324.5
+ABL.perturb_temperature = false
+ABL.cutoff_height = 50.0
+ABL.perturb_velocity = true
+ABL.perturb_ref_height = 200.0
+ABL.Uperiods = 15.0
+ABL.Vperiods = 10.0
+ABL.deltaU = 0.25
+ABL.deltaV = 0.25
+ABL.kappa = .41
+ABL.mo_gamma_m = 4.8
+ABL.mo_gamma_h = 7.8
+ABL.surface_roughness_z0 = 0.10
+ABL.surface_temp_rate = -0.25
+ABL.surface_temp_init = 300
+
+incflo.use_godunov                       = 1
+incflo.godunov_type                      = weno_z
+incflo.gravity          =   0.  0. -9.81  # Gravitational force (3D)
+incflo.density          = 1.225          # Reference density
+transport.viscosity = 1.0e-5
+transport.laminar_prandtl = 0.7
+transport.turbulent_prandtl = 0.3333
+turbulence.model = OneEqKsgsM84
+#Smagorinsky_coeffs.Cs = 0.08
+TKE.source_terms                         = KsgsM84Src
+#TKE.interpolation                        = PiecewiseConstant          
+
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#          POST-Processing              #
+#.......................................#
+#io.output_hdf5_plotfile                  = true
+#io.hdf5_compression                      = "ZFP_ACCURACY@0.001"
+
+incflo.post_processing                   = averaging samplingxy samplingxz samplingyz box_lr box_hr 
+
+# --- Sampling parameters ---
+samplingxy.output_format                   = netcdf
+samplingxy.output_frequency                = 5  # every 0.5 s
+samplingxy.fields                          = velocity #temperature
+#---- sample defs ----
+samplingxy.labels               = xyplane
+samplingxy.xyplane.type         = PlaneSampler        
+samplingxy.xyplane.num_points   = 1536 512
+samplingxy.xyplane.origin       = 1.25  1.25   26.25
+samplingxy.xyplane.axis1        = 3837.5    0.0   0.0      
+samplingxy.xyplane.axis2        =   0.0  1277.5   0.0      
+samplingxy.xyplane.normal       = 0.0 0.0 1.0         
+samplingxy.xyplane.offsets      = 0 125 250
+
+
+# --- Sampling parameters ---
+samplingxz.output_format                   = netcdf
+samplingxz.output_frequency                = 5  # every 0.5 s 
+samplingxz.fields                          = velocity #temperature
+#---- sample defs ----
+samplingxz.labels               = xzplane
+samplingxz.xzplane.type         = PlaneSampler        
+samplingxz.xzplane.num_points   = 1536 241
+samplingxz.xzplane.origin       = 1.25  641.25   1.25
+samplingxz.xzplane.axis1        = 3837.5 0.0   0.0     
+samplingxz.xzplane.axis2        =   0.0  0.0   600.0
+samplingxz.xzplane.normal       = 0.0 1.0 0.0         
+samplingxz.xzplane.offsets      = 0
+
+
+# --- Sampling parameters ---
+samplingyz.output_format                   = netcdf
+samplingyz.output_frequency                = 5  # every 0.5 s
+samplingyz.fields                          = velocity 
+#---- sample defs ----
+samplingyz.labels               = yzplane
+samplingyz.yzplane.type         = PlaneSampler        
+samplingyz.yzplane.num_points   = 512  241
+samplingyz.yzplane.origin       = 1001.25  1.25   1.25
+samplingyz.yzplane.axis1        =   0.0 1277.5   0.0      
+samplingyz.yzplane.axis2        =   0.0  0.0     600.0
+samplingyz.yzplane.normal       = 1.0 0.0 0.0         
+samplingyz.yzplane.offsets      = 0 250 500 750 1000 1500 2000
+
+
+# Sampling info generated by AMRWindSamplingCreation.py
+
+box_lr.output_format    = netcdf
+box_lr.output_frequency = 30
+box_lr.fields           = velocity # temperature tke
+box_lr.labels           = Low
+
+box_hr.output_format    = netcdf
+box_hr.output_frequency = 3
+box_hr.fields           = velocity # temperature tke
+box_hr.labels           = HighT1_inflow0deg HighT2_inflow0deg
+
+# Low sampling grid spacing = 20 m
+box_lr.Low.type         = PlaneSampler
+box_lr.Low.num_points   = 187 61
+box_lr.Low.origin       = 98.7500 38.7500 1.2500
+box_lr.Low.axis1        = 3720.0000 0.0 0.0
+box_lr.Low.axis2        = 0.0 1200.0000 0.0
+box_lr.Low.normal       = 0.0 0.0 1.0
+box_lr.Low.offsets      = 0.0 20.0 40.0 60.0 80.0 100.0 120.0 140.0 160.0 180.0 200.0 220.0 240.0 260.0 280.0 300.0 320.0 340.0 360.0 380.0 400.0 420.0 440.0 460.0 480.0 500.0 520.0 540.0 560.0 580.0 600.0 620.0 640.0 660.0 680.0 700.0 720.0 740.0 760.0
+
+# Turbine T1 at (x,y) = (701.25, 641.25), with D = 240, grid spacing = 2.5 m
+box_hr.HighT1_inflow0deg.type         = PlaneSampler
+box_hr.HighT1_inflow0deg.num_points   = 117 117
+box_hr.HighT1_inflow0deg.origin       = 553.7500 493.7500 1.2500
+box_hr.HighT1_inflow0deg.axis1        = 290.0000 0.0 0.0
+box_hr.HighT1_inflow0deg.axis2        = 0.0 290.0000 0.0
+box_hr.HighT1_inflow0deg.normal       = 0.0 0.0 1.0
+box_hr.HighT1_inflow0deg.offsets      = 0.0 2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0 22.5 25.0 27.5 30.0 32.5 35.0 37.5 40.0 42.5 45.0 47.5 50.0 52.5 55.0 57.5 60.0 62.5 65.0 67.5 70.0 72.5 75.0 77.5 80.0 82.5 85.0 87.5 90.0 92.5 95.0 97.5 100.0 102.5 105.0 107.5 110.0 112.5 115.0 117.5 120.0 122.5 125.0 127.5 130.0 132.5 135.0 137.5 140.0 142.5 145.0 147.5 150.0 152.5 155.0 157.5 160.0 162.5 165.0 167.5 170.0 172.5 175.0 177.5 180.0 182.5 185.0 187.5 190.0 192.5 195.0 197.5 200.0 202.5 205.0 207.5 210.0 212.5 215.0 217.5 220.0 222.5 225.0 227.5 230.0 232.5 235.0 237.5 240.0 242.5 245.0 247.5 250.0 252.5 255.0 257.5 260.0 262.5 265.0 267.5 270.0 272.5 275.0 277.5 280.0 282.5 285.0 287.5 290.0 292.5 295.0
+
+# Turbine T2 at (x,y) = (2381.25, 641.25), with D = 240, grid spacing = 2.5 m
+box_hr.HighT2_inflow0deg.type         = PlaneSampler
+box_hr.HighT2_inflow0deg.num_points   = 117 117
+box_hr.HighT2_inflow0deg.origin       = 2233.7500 493.7500 1.2500
+box_hr.HighT2_inflow0deg.axis1        = 290.0000 0.0 0.0
+box_hr.HighT2_inflow0deg.axis2        = 0.0 290.0000 0.0
+box_hr.HighT2_inflow0deg.normal       = 0.0 0.0 1.0
+box_hr.HighT2_inflow0deg.offsets      = 0.0 2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0 22.5 25.0 27.5 30.0 32.5 35.0 37.5 40.0 42.5 45.0 47.5 50.0 52.5 55.0 57.5 60.0 62.5 65.0 67.5 70.0 72.5 75.0 77.5 80.0 82.5 85.0 87.5 90.0 92.5 95.0 97.5 100.0 102.5 105.0 107.5 110.0 112.5 115.0 117.5 120.0 122.5 125.0 127.5 130.0 132.5 135.0 137.5 140.0 142.5 145.0 147.5 150.0 152.5 155.0 157.5 160.0 162.5 165.0 167.5 170.0 172.5 175.0 177.5 180.0 182.5 185.0 187.5 190.0 192.5 195.0 197.5 200.0 202.5 205.0 207.5 210.0 212.5 215.0 217.5 220.0 222.5 225.0 227.5 230.0 232.5 235.0 237.5 240.0 242.5 245.0 247.5 250.0 252.5 255.0 257.5 260.0 262.5 265.0 267.5 270.0 272.5 275.0 277.5 280.0 282.5 285.0 287.5 290.0 292.5 295.0
+
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#              AVERAGING                #
+#.......................................#
+averaging.type                           = TimeAveraging
+averaging.labels                         = means stress
+
+averaging.averaging_start_time           = 25000
+averaging.averaging_window               = 600.0
+
+averaging.means.fields                   = velocity
+averaging.means.averaging_type           = ReAveraging
+
+averaging.stress.fields                  = velocity
+averaging.stress.averaging_type          = ReynoldsStress
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#            MESH REFINEMENT            #
+#.......................................#
+
+
+#¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨#
+#               TURBINES                #
+#.......................................#
+
