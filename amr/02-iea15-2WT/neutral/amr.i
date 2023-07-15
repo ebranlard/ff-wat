@@ -12,9 +12,9 @@ incflo.verbose                           =   1          # incflo_level
 #            INPUT AND OUTPUT           #
 #.......................................#
 time.plot_interval            =  24000       # Steps between plot files, every 600 s
-time.checkpoint_interval      =  8000       # Steps between checkpoint files, every 200 s
+time.checkpoint_interval      =  12000       # Steps between checkpoint files, every 300 s
 
-ABL.bndry_file = "/projects/car/rthedin/amr_runs/02_precursor_shell/stable.W.8at150.20dTinv_0.25cooling_0.1z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis5days/bndry_file.nc"
+ABL.bndry_file = "/projects/car/rthedin/amr_runs/02_precursor_shell/neutral_8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m/bndry_file.nc"
 ABL.bndry_io_mode = 1
 ABL.bndry_planes = xlo
 ABL.bndry_output_start_time = 24999.0
@@ -23,7 +23,7 @@ ABL.bndry_var_names = velocity temperature tke
 
 io.KE_int = -1
 io.line_plot_int = 1
-io.restart_file                          = /projects/car/rthedin/amr_runs/02_precursor_shell/stable.W.8at150.20dTinv_0.25cooling_0.1z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis5days/chk121692
+io.restart_file                          = /projects/car/rthedin/amr_runs/02_precursor_shell/neutral_8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m/chk129921
 io.outputs = actuator_src_term
 io.derived_outputs = q_criterion
 
@@ -31,8 +31,8 @@ io.derived_outputs = q_criterion
 #            GEOMETRY & BCs             #
 #.......................................#
 geometry.prob_lo        =   0. 0.    0.  # Lo corner coordinates
-geometry.prob_hi        =   3840. 1280.  640.  # Hi corner coordinates
-amr.n_cell              =  1536 512  256    # Grid cells at coarsest AMRlevel
+geometry.prob_hi        =   3840. 1280.  960.  # Hi corner coordinates
+amr.n_cell              =  1536 512  384    # Grid cells at coarsest AMRlevel
 geometry.is_periodic    =   0   1   0   # Periodicity x y z (0/1)
 incflo.delp             =   0.  0.  0.  # Prescribed (cyclic) pressure gradient
 
@@ -75,10 +75,10 @@ ICNS.source_terms = BoussinesqBuoyancy CoriolisForcing BodyForce ActuatorForcing
 #---------------- Additions by calc_inflow_stats.py -----------------#
 ABL.wall_shear_stress_type = "local"
 ABL.inflow_outflow_mode    = true
-ABL.wf_velocity            = 1.324928 0.091594
-ABL.wf_vmag                = 1.340386632038509
-ABL.wf_theta               = 298.4857241706984
-BodyForce.magnitude        = 0.00011625217263954034 0.00015944554243391484 0.0
+ABL.wf_velocity            = 0.494814 0.022446
+ABL.wf_vmag                = 0.5343535687174596
+ABL.wf_theta               = 300.0117959937256
+BodyForce.magnitude        = 0.00033354066478204675 0.0008423824377971268 0.0
 BoussinesqBuoyancy.read_temperature_profile = true
 BoussinesqBuoyancy.tprofile_filename        = avg_theta.dat
 #--------------------------------------------------------------------#
@@ -94,8 +94,8 @@ incflo.physics = ABL Actuator
 
 BoussinesqBuoyancy.reference_temperature = 300.0
 ABL.reference_temperature = 300.0
-ABL.temperature_heights                  = 0.0 400.0 500.0 2000.0
-ABL.temperature_values                   = 300.0 300.0 310.0 324.5
+ABL.temperature_heights                  = 0.0 700.0 800.0 1800.0
+ABL.temperature_values                   = 300.0 300.0 310.0 313.0
 ABL.perturb_temperature = false
 ABL.cutoff_height = 50.0
 ABL.perturb_velocity = true
@@ -105,11 +105,8 @@ ABL.Vperiods = 10.0
 ABL.deltaU = 0.25
 ABL.deltaV = 0.25
 ABL.kappa = .41
-ABL.mo_gamma_m = 4.8
-ABL.mo_gamma_h = 7.8
-ABL.surface_roughness_z0 = 0.10
-ABL.surface_temp_rate = -0.25
-ABL.surface_temp_init = 300
+ABL.surface_roughness_z0 = 0.75
+ABL.surface_temp_flux                    = 0.0
 
 incflo.use_godunov                       = 1
 incflo.godunov_type                      = weno_z
@@ -213,7 +210,7 @@ averaging.type                           = TimeAveraging
 averaging.labels                         = means stress
 
 averaging.averaging_start_time           = 25000
-averaging.averaging_window               = 600.0
+averaging.averaging_window               = 60.0
 
 averaging.means.fields                   = velocity
 averaging.means.averaging_type           = ReAveraging
