@@ -2,7 +2,7 @@
 !    - File written using ROSCO version 2.7.0 controller tuning logic on 03/14/23
 
 !------- DEBUG ------------------------------------------------------------
-1                   ! LoggingLevel		- {0: write no debug files, 1: write standard output .dbg-file, 2: LoggingLevel 1 + ROSCO LocalVars (.dbg2) 3: LoggingLevel 2 + complete avrSWAP-array (.dbg3)}
+0                   ! LoggingLevel		- {0: write no debug files, 1: write standard output .dbg-file, 2: LoggingLevel 1 + ROSCO LocalVars (.dbg2) 3: LoggingLevel 2 + complete avrSWAP-array (.dbg3)}
 
 !------- CONTROLLER FLAGS -------------------------------------------------
 2                   ! F_LPFType			- {1: first-order low-pass filter, 2: second-order low-pass filter}, [rad/s] (currently filters generator speed and pitch control signals
@@ -88,8 +88,8 @@
 1.0                 ! WE_GearboxRatio	- Gearbox ratio [>=1],  [-]
 312456272.00000       ! WE_Jtot			- Total drivetrain inertia, including blades, hub and casted generator inertia to LSS, [kg m^2]
 1.225               ! WE_RhoAir			- Air density, [kg m^-3]
-"/home/rthedin/repos/IEA-15-240-RWT/OpenFAST/IEA-15-240-RWT/Cp_Ct_Cq.IEA15MW.txt"      ! PerfFileName      - File containing rotor performance tables (Cp,Ct,Cq)
-36      26          ! PerfTableSize     - Size of rotor performance tables, first number refers to number of blade pitch angles, second number referse to number of tip-speed ratios
+"Cp_Ct_Cq.IEA15MW.txt"      ! PerfFileName      - File containing rotor performance tables (Cp,Ct,Cq)
+104      72          ! PerfTableSize     - Size of rotor performance tables, first number refers to number of blade pitch angles, second number referse to number of tip-speed ratios
 60                  ! WE_FOPoles_N      - Number of first-order system poles used in EKF
 3.0000 3.2617 3.5234 3.7852 4.0469 4.3086 4.5703 4.8321 5.0938 5.3555 5.6172 5.8790 6.1407 6.4024 6.6641 6.9259 7.1876 7.4493 7.7110 7.9728 8.2345 8.4962 8.7579 9.0197 9.2814 9.5431 9.8048 10.0666 10.3283 10.5900 11.0703 11.5507 12.0310 12.5113 12.9917 13.4720 13.9523 14.4327 14.9130 15.3933 15.8737 16.3540 16.8343 17.3147 17.7950 18.2753 18.7557 19.2360 19.7163 20.1967 20.6770 21.1573 21.6377 22.1180 22.5983 23.0787 23.5590 24.0393 24.5197 25.0000               ! WE_FOPoles_v      - Wind speeds corresponding to first-order system poles [m/s]
 -0.02567895 -0.02791922 -0.03015948 -0.03239975 -0.03464002 -0.03688029 -0.03912055 -0.04136082 -0.04360109 -0.04584135 -0.04808162 -0.05032189 -0.05256215 -0.05480242 -0.05704269 -0.05928296 -0.06152322 -0.06376349 -0.06600376 -0.06824402 -0.07048429 -0.07272456 -0.07496482 -0.07720509 -0.07944536 -0.08168563 -0.08392589 -0.08616616 -0.08840643 -0.09118389 -0.05949559 -0.06227862 -0.06969047 -0.07908187 -0.08992016 -0.10182266 -0.11449485 -0.12807432 -0.14219661 -0.15675774 -0.17212268 -0.18773439 -0.20385809 -0.22064779 -0.23758803 -0.25509405 -0.27303902 -0.29132859 -0.30992791 -0.32898498 -0.34841535 -0.36819407 -0.38815413 -0.40855878 -0.42924403 -0.45034341 -0.47165500 -0.49327476 -0.51490208 -0.53688665               ! WE_FOPoles        - First order system poles [1/s]

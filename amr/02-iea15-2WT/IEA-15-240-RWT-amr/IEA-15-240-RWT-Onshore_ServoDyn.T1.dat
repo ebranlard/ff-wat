@@ -74,10 +74,10 @@ True                   GenTiStp    - Method to stop the generator {T: timed usin
 ---------------------- CABLE CONTROL -------------------------------------------
           0   CCmode       - Cable control mode {0: none, 4: user-defined from Simulink/Labview, 5: user-defined from Bladed-style DLL} (switch)
 ---------------------- BLADED INTERFACE ---------------------------------------- [used only with Bladed Interface]
-"/home/rthedin/repos/rosco_v3.8_2023_05_11/ROSCO/ROSCO/build_2023_05_11/libdiscon.T1.so" DLL_FileName - Name/location of the dynamic library {.dll [Windows] or .so [Linux]} in the Bladed-DLL format (-) [used only with Bladed Interface]
-"IEA-15-240-RWT-Monopile_DISCON.IN"   DLL_InFile  - Name of input file sent to the DLL (-) [used only with Bladed Interface]
+"ServoData/libdiscon.T1.so" DLL_FileName  ROSCO-v3.8 - Name/location of the dynamic library {.dll [Windows] or .so [Linux]} in the Bladed-DLL format (-) [used only with Bladed Interface]
+"DISCON.IN"            DLL_InFile  - Name of input file sent to the DLL (-) [used only with Bladed Interface]
 "DISCON"               DLL_ProcName - Name of procedure in DLL to be called (-) [case sensitive; used only with DLL Interface]
-DEFAULT                   DLL_DT      - Communication interval for dynamic library (s) (or "default") [used only with Bladed Interface]
+DEFAULT                DLL_DT      - Communication interval for dynamic library (s) (or "default") [used only with Bladed Interface]
 True                   DLL_Ramp    - Whether a linear ramp should be used between DLL_DT time steps [introduces time shift when true] (flag) [used only with Bladed Interface]
 9999.9                 BPCutoff    - Cuttoff frequency for low-pass filter on blade pitch from DLL (Hz) [used only with Bladed Interface]
 0.0                    NacYaw_North - Reference yaw angle of the nacelle when the upwind end points due North (deg) [used only with Bladed Interface]

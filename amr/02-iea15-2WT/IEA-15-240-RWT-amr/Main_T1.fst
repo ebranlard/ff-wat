@@ -1,5 +1,5 @@
 ------- OpenFAST INPUT FILE -------------------------------------------
-IEA 15 MW offshore reference model monopile configuration
+IEA 15 MW offshore reference model onshore configuration
 ---------------------- SIMULATION CONTROL --------------------------------------
 False                  Echo        - Echo input data to <RootName>.ech (flag)
 "FATAL"                AbortLevel  - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}
@@ -15,34 +15,34 @@ False                  Echo        - Echo input data to <RootName>.ech (flag)
 2                      CompAero    - Compute aerodynamic loads (switch) {0=None; 1=AeroDyn v14; 2=AeroDyn v15}
 1                      CompServo   - Compute control and electrical-drive dynamics (switch) {0=None; 1=ServoDyn}
 0                      CompHydro   - Compute hydrodynamic loads (switch) {0=None; 1=HydroDyn}
-1                      CompSub     - Compute sub-structural dynamics (switch) {0=None; 1=SubDyn; 2=External Platform MCKF}
+0                      CompSub     - Compute sub-structural dynamics (switch) {0=None; 1=SubDyn; 2=External Platform MCKF}
 0                      CompMooring - Compute mooring system (switch) {0=None; 1=MAP++; 2=FEAMooring; 3=MoorDyn; 4=OrcaFlex}
 0                      CompIce     - Compute ice loads (switch) {0=None; 1=IceFloe; 2=IceDyn}
-0                      MHK         - MHK turbine type (switch) {0=Not an MHK turbine; 1=Fixed MHK turbine; 2=Floating MHK turbine}
+0                      MHK           - MHK turbine type (switch) {0=Not an MHK turbine; 1=Fixed MHK turbine; 2=Floating MHK turbine}
 ---------------------- ENVIRONMENTAL CONDITIONS --------------------------------
 9.81                   Gravity     - Gravitational acceleration (m/s^2)
-1.225                  AirDens     - Air density (kg/m^3)
-1025                   WtrDens     - Water density (kg/m^3)
-1.464e-05              KinVisc     - Kinematic viscosity of working fluid (m^2/s)
-335                    SpdSound    - Speed of sound in working fluid (m/s)
-103500                 Patm        - Atmospheric pressure (Pa) [used only for an MHK turbine cavitation check]
-1700                   Pvap        - Vapour pressure of working fluid (Pa) [used only for an MHK turbine cavitation check]
-30                     WtrDpth     - Water depth (m)
-0                      MSL2SWL     - Offset between still-water level and mean sea level (m) [positive upward]
+1.225                  AirDens       - Air density (kg/m^3)
+0                      WtrDens       - Water density (kg/m^3)
+1.464e-05              KinVisc       - Kinematic viscosity of working fluid (m^2/s)
+335                    SpdSound      - Speed of sound in working fluid (m/s)
+103500                 Patm          - Atmospheric pressure (Pa) [used only for an MHK turbine cavitation check]
+1700                   Pvap          - Vapour pressure of working fluid (Pa) [used only for an MHK turbine cavitation check]
+0                      WtrDpth       - Water depth (m)
+0                      MSL2SWL       - Offset between still-water level and mean sea level (m) [positive upward]
 ---------------------- INPUT FILES ---------------------------------------------
-"./IEA-15-240-RWT-Monopile_ElastoDyn.T.dat"  EDFile      - Name of file containing ElastoDyn input parameters (quoted string)
-"./IEA-15-240-RWT_BeamDyn.dat"    BDBldFile(1) - Name of file containing BeamDyn input parameters for blade 1 (quoted string)
-"./IEA-15-240-RWT_BeamDyn.dat"    BDBldFile(2) - Name of file containing BeamDyn input parameters for blade 2 (quoted string)
-"./IEA-15-240-RWT_BeamDyn.dat"    BDBldFile(3) - Name of file containing BeamDyn input parameters for blade 3 (quoted string)
-"unused" InflowFile  - Name of file containing inflow wind input parameters (quoted string)
-"./IEA-15-240-RWT-Monopile_AeroDyn15_3.3.0.dat"  AeroFile    - Name of file containing aerodynamic input parameters (quoted string)
-"./IEA-15-240-RWT-Monopile_ServoDyn.T2.dat"   ServoFile   - Name of file containing control and electrical-drive input parameters (quoted string)
-"./IEA-15-240-RWT-Monopile_HydroDyn.dat"   HydroFile   - Name of file containing hydrodynamic input parameters (quoted string)
-"./IEA-15-240-RWT-Monopile_SubDyn.dat"     SubFile     - Name of file containing sub-structural input parameters (quoted string)
+"IEA-15-240-RWT-Onshore_ElastoDyn.dat"  EDFile      - Name of file containing ElastoDyn input parameters (quoted string)
+"unused"               BDBldFile(1) - Name of file containing BeamDyn input parameters for blade 1 (quoted string)
+"unused"               BDBldFile(2) - Name of file containing BeamDyn input parameters for blade 2 (quoted string)
+"unused"               BDBldFile(3) - Name of file containing BeamDyn input parameters for blade 3 (quoted string)
+"IEA-15-240-RWT_InflowFile.dat"       InflowFile  - Name of file containing inflow wind input parameters (quoted string)
+"IEA-15-240-RWT_AeroDyn.dat"  AeroFile    - Name of file containing aerodynamic input parameters (quoted string)
+"IEA-15-240-RWT-ServoDyn.T1.dat"   ServoFile   - Name of file containing control and electrical-drive input parameters (quoted string)
+"unused"               HydroFile   - Name of file containing hydrodynamic input parameters (quoted string)
+"unused"               SubFile     - Name of file containing sub-structural input parameters (quoted string)
 "unused"               MooringFile - Name of file containing mooring system input parameters (quoted string)
 "unused"               IceFile     - Name of file containing ice input parameters (quoted string)
 ---------------------- OUTPUT --------------------------------------------------
-False                   SumPrint    - Print summary data to "<RootName>.sum" (flag)
+False                  SumPrint    - Print summary data to "<RootName>.sum" (flag)
 10.0                   SttsTime    - Amount of time between screen status messages (s)
 99999.0                ChkptTime   - Amount of time between creating checkpoint files for potential restart (s)
 "default"              DT_Out      - Time step for tabular output (s) (or "default")
@@ -66,6 +66,6 @@ False                  LinOutJac   - Include full Jacobians in linearization out
 False                  LinOutMod   - Write module-level linearization output files in addition to output for full system? (flag) [unused if Linearize=False]
 ---------------------- VISUALIZATION ------------------------------------------
 0                      WrVTK       - VTK visualization data output: (switch) {0=none; 1=initialization data only; 2=animation}
-3                      VTK_type    - Type of VTK visualization data: (switch) {1=surfaces; 2=basic meshes (lines/points); 3=all meshes (debug)} [unused if WrVTK=0]
+2                      VTK_type    - Type of VTK visualization data: (switch) {1=surfaces; 2=basic meshes (lines/points); 3=all meshes (debug)} [unused if WrVTK=0]
 False                  VTK_fields  - Write mesh fields to VTK data files? (flag) {true/false} [unused if WrVTK=0]
 15.0                   VTK_fps     - Frame rate for VTK output (frames per second){will use closest integer multiple of DT} [used only if WrVTK=2]
