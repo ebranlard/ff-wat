@@ -1,0 +1,4 @@
+*.chkp
+chkp*
+plt*
+post_processing/

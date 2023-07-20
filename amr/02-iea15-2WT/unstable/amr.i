@@ -258,19 +258,19 @@ Actuator.TurbineFastLine.num_points_blade = 48
 Actuator.TurbineFastLine.num_points_tower = 12
 Actuator.TurbineFastLine.epsilon =  2.5 2.5 2.5
 Actuator.TurbineFastLine.epsilon_tower = 2.5 2.5 2.5
+Actuator.TurbineFastLine.openfast_start_time = 0.0
+Actuator.TurbineFastLine.openfast_stop_time = 1801.0
 Actuator.TurbineFastLine.nacelle_drag_coeff = 0.5
 Actuator.TurbineFastLine.nacelle_area = 49.5
 Actuator.TurbineFastLine.output_frequency = 10
 Actuator.TurbineFastLine.density = 1.225
-Actuator.TurbineFastLine.openfast_start_time = 0.0
-Actuator.TurbineFastLine.openfast_stop_time = 1801.0
 
 # hub at 701.25, 641.25, 0, considering overhang of 12.0313
 Actuator.T1.base_position = 713.28 641.25 0
-Actuator.T1.openfast_input_file = "turbine_iea15mw/IEA-15-240-RWT-Monopile.T1.fst"
+Actuator.T1.openfast_input_file = "../IEA-15-240-RWT-amr/Main_T1.fst"
 
 # hub at 2381.25, 641.25, 0, considering overhang of 12.0313
 Actuator.T2.base_position = 2393.28 641.25 0.
-Actuator.T2.openfast_input_file = "turbine_iea15mw/IEA-15-240-RWT-Monopile.T2.fst"
+Actuator.T2.openfast_input_file = "../IEA-15-240-RWT-amr/Main_T2.fst"
 
 

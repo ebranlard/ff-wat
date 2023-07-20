@@ -267,10 +267,10 @@ Actuator.TurbineFastLine.density = 1.225
 
 # hub at 701.25, 641.25, 0, considering overhang of 12.0313
 Actuator.T1.base_position = 713.28 641.25 0
-Actuator.T1.openfast_input_file = "turbine_iea15mw/IEA-15-240-RWT-Monopile.T1.fst"
+Actuator.T1.openfast_input_file = "../IEA-15-240-RWT-amr/Main_T1.fst"
 
 # hub at 2381.25, 641.25, 0, considering overhang of 12.0313
 Actuator.T2.base_position = 2393.28 641.25 0.
-Actuator.T2.openfast_input_file = "turbine_iea15mw/IEA-15-240-RWT-Monopile.T2.fst"
+Actuator.T2.openfast_input_file = "../IEA-15-240-RWT-amr/Main_T2.fst"
 
 

@@ -3,15 +3,15 @@ IEA 15 MW offshore reference model onshore configuration
 ---------------------- SIMULATION CONTROL --------------------------------------
 False                  Echo        - Echo input data to <RootName>.ech (flag)
 "FATAL"                AbortLevel  - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}
-300.0                  TMax        - Total run time (s)
-0.005                  DT          - Recommended module time step (s)
+1800.0                 TMax        - Total run time (s)
+0.01                   DT          - Recommended module time step (s)
 2                      InterpOrder - Interpolation order for input/output time history (-) {1=linear, 2=quadratic}
 0                      NumCrctn    - Number of correction iterations (-) {0=explicit calculation, i.e., no corrections}
 99999.0                DT_UJac     - Time between calls to get Jacobians (s)
 1000000.0              UJacSclFact - Scaling factor used in Jacobians (-)
 ---------------------- FEATURE SWITCHES AND FLAGS ------------------------------
 1                      CompElast   - Compute structural dynamics (switch) {1=ElastoDyn; 2=ElastoDyn + BeamDyn for blades}
-1                      CompInflow  - Compute inflow wind velocities (switch) {0=still air; 1=InflowWind; 2=external from OpenFOAM}
+2                      CompInflow  - Compute inflow wind velocities (switch) {0=still air; 1=InflowWind; 2=external from OpenFOAM}
 2                      CompAero    - Compute aerodynamic loads (switch) {0=None; 1=AeroDyn v14; 2=AeroDyn v15}
 1                      CompServo   - Compute control and electrical-drive dynamics (switch) {0=None; 1=ServoDyn}
 0                      CompHydro   - Compute hydrodynamic loads (switch) {0=None; 1=HydroDyn}
@@ -20,7 +20,7 @@ False                  Echo        - Echo input data to <RootName>.ech (flag)
 0                      CompIce     - Compute ice loads (switch) {0=None; 1=IceFloe; 2=IceDyn}
 0                      MHK           - MHK turbine type (switch) {0=Not an MHK turbine; 1=Fixed MHK turbine; 2=Floating MHK turbine}
 ---------------------- ENVIRONMENTAL CONDITIONS --------------------------------
-9.80665                Gravity       - Gravitational acceleration (m/s^2)
+9.81                   Gravity     - Gravitational acceleration (m/s^2)
 1.225                  AirDens       - Air density (kg/m^3)
 0                      WtrDens       - Water density (kg/m^3)
 1.464e-05              KinVisc       - Kinematic viscosity of working fluid (m^2/s)
@@ -30,22 +30,22 @@ False                  Echo        - Echo input data to <RootName>.ech (flag)
 0                      WtrDpth       - Water depth (m)
 0                      MSL2SWL       - Offset between still-water level and mean sea level (m) [positive upward]
 ---------------------- INPUT FILES ---------------------------------------------
-"IEA-15-240-RWT-Onshore_ElastoDyn.dat"  EDFile      - Name of file containing ElastoDyn input parameters (quoted string)
-"../IEA-15-240-RWT/IEA-15-240-RWT_BeamDyn.dat"    BDBldFile(1) - Name of file containing BeamDyn input parameters for blade 1 (quoted string)
-"../IEA-15-240-RWT/IEA-15-240-RWT_BeamDyn.dat"    BDBldFile(2) - Name of file containing BeamDyn input parameters for blade 2 (quoted string)
-"../IEA-15-240-RWT/IEA-15-240-RWT_BeamDyn.dat"    BDBldFile(3) - Name of file containing BeamDyn input parameters for blade 3 (quoted string)
-"../IEA-15-240-RWT/IEA-15-240-RWT_InflowFile.dat" InflowFile  - Name of file containing inflow wind input parameters (quoted string)
-"../IEA-15-240-RWT/IEA-15-240-RWT_AeroDyn15.dat"  AeroFile    - Name of file containing aerodynamic input parameters (quoted string)
-"IEA-15-240-RWT-Monopile_ServoDyn.dat"   ServoFile   - Name of file containing control and electrical-drive input parameters (quoted string)
-"none"                 HydroFile   - Name of file containing hydrodynamic input parameters (quoted string)
-"none"                 SubFile     - Name of file containing sub-structural input parameters (quoted string)
-"none"                 MooringFile - Name of file containing mooring system input parameters (quoted string)
-"none"                 IceFile     - Name of file containing ice input parameters (quoted string)
+"../IEA-15-240-RWT-amr/IEA-15-240-RWT-Onshore_ElastoDyn.dat"  EDFile      - Name of file containing ElastoDyn input parameters (quoted string)
+"unused"    BDBldFile(1) - Name of file containing BeamDyn input parameters for blade 1 (quoted string)
+"unused"    BDBldFile(2) - Name of file containing BeamDyn input parameters for blade 2 (quoted string)
+"unused"    BDBldFile(3) - Name of file containing BeamDyn input parameters for blade 3 (quoted string)
+"../IEA-15-240-RWT-amr/IEA-15-240-RWT_InflowFile.dat" InflowFile  - Name of file containing inflow wind input parameters (quoted string)
+"../IEA-15-240-RWT-amr/IEA-15-240-RWT_AeroDyn.dat"  AeroFile    - Name of file containing aerodynamic input parameters (quoted string)
+"../IEA-15-240-RWT-amr/IEA-15-240-RWT-Onshore_ServoDyn.T2.dat"   ServoFile   - Name of file containing control and electrical-drive input parameters (quoted string)
+"unused"               HydroFile   - Name of file containing hydrodynamic input parameters (quoted string)
+"unused"               SubFile     - Name of file containing sub-structural input parameters (quoted string)
+"unused"               MooringFile - Name of file containing mooring system input parameters (quoted string)
+"unused"               IceFile     - Name of file containing ice input parameters (quoted string)
 ---------------------- OUTPUT --------------------------------------------------
 False                  SumPrint    - Print summary data to "<RootName>.sum" (flag)
 10.0                   SttsTime    - Amount of time between screen status messages (s)
 99999.0                ChkptTime   - Amount of time between creating checkpoint files for potential restart (s)
-"default"              DT_Out      - Time step for tabular output (s) (or "default")
+0.05                   DT_Out      - Time step for tabular output (s) (or "default")
 0.0                    TStart      - Time to begin tabular output (s)
 3                      OutFileFmt  - Format for tabular (time-marching) output file (switch) {1: text file [<RootName>.out], 2: binary file [<RootName>.outb], 3: both}
 True                   TabDelim    - Use tab delimiters in text tabular output file? (flag) {uses spaces if false}

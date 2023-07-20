@@ -1,13 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=n8at150_2.5_startAt18000
-#SBATCH --output amr1run.log.%j
+#SBATCH --job-name=neutral_startAt18000
 #SBATCH --nodes=32
 #SBATCH --time=4-00
-##SBATCH --qos=high
-#SBATCH --mail-user=registhedin@gmail.com
-#SBATCH --mail-type=ALL
-#SBATCH --account=lljs
-##SBATCH --partition=debug
+#SBATCH --account=mmc
+#SBATCH --mail-user=emmanuel.branlard@nrel.gov
+#SBATCH --mail-type BEGIN,END,FAIL              # Send e-mail when job begins, ends or fails
+#SBATCH -o slurm-%x-%j.log 
 
 # This problem has 18432 grids
 # 9216/36 = 256
@@ -32,11 +30,12 @@ module load mkl
 module load netcdf-c/4.7.3
 
 amrbin='/home/rthedin/repos/amr-wind/build/amr_wind'
+input=amr_precursor.i.startAt18000
 
 export EXAWIND_DIR=/nopt/nrel/ecom/exawind/exawind-2020-09-21/install/gcc
 export MPI_TYPE_DEPTH=15
 
 #rm -rf post_processing 
-srun -n $cores --cpu_bind=cores $amrbin setup_precursor_neutral.i.startAt18000 > log.amr_wind.abl.startAt18000 2>&1
+srun -n $cores --cpu_bind=cores $amrbin $input 2>&1
 
 echo "Ending AMR-wind job at: " $(date)

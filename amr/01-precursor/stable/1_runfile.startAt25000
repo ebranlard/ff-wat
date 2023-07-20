@@ -1,9 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=s8at150_0.1z0_2.5m_25_26.8_saveFF
-#SBATCH --output amr1run.log.%j
 #SBATCH --nodes=43
 #SBATCH --time=4-00
 #SBATCH --account=osw
+#SBATCH --mail-user=emmanuel.branlard@nrel.gov
+#SBATCH --mail-type BEGIN,END,FAIL              # Send e-mail when job begins, ends or fails
+#SBATCH -o slurm-%x-%j.log                      # Output
 
 # This stable problem has 6144 grids
 # 6144/(36*32) = 5.6 grids
@@ -29,15 +31,12 @@ module load mkl
 module load netcdf-c/4.7.3
 
 amrbin='/home/rthedin/repos/amr-wind/build/amr_wind'
+input=amr_precursor.i.startAt25000
 
 export EXAWIND_DIR=/nopt/nrel/ecom/exawind/exawind-2020-09-21/install/gcc
 export MPI_TYPE_DEPTH=15
 
-#testchk=$(/usr/bin/ls -dv chk[0-9]* |tail -1)
-#rm -f chklatest
-#ln -s $latestchk chklatest
-
 #rm -rf post_processing 
-srun -n $cores --cpu_bind=cores $amrbin setup_precursor_stable.i.startAt25000.saveFFboxes > log.amr_wind.abl.startAt25000.saveFFboxes 2>&1
+srun -n $cores --cpu_bind=cores $amrbin $input 2>&1
 
 echo "Ending AMR-wind job at: " $(date)

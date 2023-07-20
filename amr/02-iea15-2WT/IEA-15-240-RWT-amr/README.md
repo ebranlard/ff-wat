@@ -1,12 +1,19 @@
-Compatible with IEA-15-RWT repository
 
-With the onshore "flavor" provided in the following repository
-    https://github.com/ebranlard/IEA-15-240-RWT 
+Model for:
 
-branch iea47
+- OpenFAST: v3.4
+- ROSVO:    v2.8
+
+Compatible with IEA-15-RWT repository with the onshore "flavor" provided in the following repository
+
+- https://github.com/ebranlard/IEA-15-240-RWT 
+- branch iea47
 
 
-OpenFAST: v3.4
-ROSVO:    v2.8
+Modifications:
+ - Allowed "IPC" in ServoDyn so that pitch offset (faults) can be used in ROSCO
+ - Negative pitch offset used to decrease CT
+
+
 
 
