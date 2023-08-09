@@ -1,4 +1,6 @@
 *.chkp
 chkp*
 plt*
+*.nc
 post_processing/
+processedData/

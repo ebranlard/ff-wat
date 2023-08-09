@@ -1,5 +1,7 @@
 *.out
 *.outb
 *.exe
-
+*.png
+*.zip
 _*
+.ipynb_checkpoints
