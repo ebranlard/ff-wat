@@ -1,0 +1,8 @@
+*.dbg
+*.out
+*.outb
+*.sum
+*.ech
+*.yaml
+*.exe
+openfast*
