@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=neutral_0wt
+#SBATCH --job-name=neut_0wt
 #SBATCH --nodes=56
 #SBATCH --time=8-00
 #SBATCH --account=isda
@@ -25,14 +25,15 @@ echo "Starting AMR-wind job at: " $(date)
 echo "using" $cores "core(s)"
 
 module purge
-module load gcc
+module load gcc/8.4.0
 module load mpt
 module load cmake
 module load mkl
 module load netcdf-c/4.7.3
 
 
-amrbin='/home/rthedin/repos/amr-wind/build_main_2022_02_02_ef466d9/amr_wind'
+#amrbin='/home/rthedin/repos/amr-wind/build_main_2022_02_02_ef466d9/amr_wind'
+amrbin='/home/ebranlar/amr-wind-bin/amr_wind'
 input=amr.i
 
 export EXAWIND_DIR=/nopt/nrel/ecom/exawind/exawind-2020-09-21/install/gcc
