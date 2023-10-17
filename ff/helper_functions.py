@@ -6,6 +6,18 @@ import matplotlib.pyplot as plt
 import xarray as xr
 from weio.vtk_file import VTKFile
 
+def mygradient(y, x):
+    # Forward differences;
+    #d = np.diff(y)/np.diff(x)
+    # Central differences
+    z1  = np.hstack((y[0],  y[:-1]))
+    z2  = np.hstack((y[1:], y[-1]))
+    dx1 = np.hstack((0, np.diff(x)))
+    dx2 = np.hstack((np.diff(x), 0))
+
+    d = (z2-z1) / (dx2+dx1)
+    return d
+
 def colorbar(mappable, pad=0.1, size='10%'):
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     ax = mappable.axes

@@ -33,16 +33,23 @@ import xarray as xr
 
 
 folder ='steady/'
-simbaseref = 'FF-NoWAT'
-simbasewat = 'FF-WAT'
 
+# --- Comparison of two
+simbaseref = 'FF-WAT-kd00_kg00'
+simbasewat = 'FF-WAT-kd10_kg10'
+
+# --- Comparison of all
 SIMS =  []
 # SIMS +=  ['FF-NoWAT']
-# SIMS +=  ['FF-WAT-kd10_kg10']
-# SIMS +=  ['FF-WAT-kd00_kg00']
-# SIMS +=  ['FF-WAT-kd10_kg00']
+SIMS +=  ['FF-WAT-kd00_kg00']
 # SIMS +=  ['FF-WAT-kd00_kg10']
-SIMS +=  ['FF-WAT-kd01_kg01']
+# SIMS +=  ['FF-WAT-kd10_kg00']
+# SIMS +=  ['FF-WAT-kd10_kg10']
+# SIMS +=  ['FF-WAT-kd01_kg01'] # Smaller
+# SIMS +=  ['FF-WAT-kd10_kg10-ModProj1']
+# SIMS +=  ['FF-WAT-kd10_kg10-ModProj3']
+# SIMS +=  ['FF-WAT-ModW-Cart']
+# SIMS +=  ['FF-WAT-ModW-Polar']
 
 iStart = 100
 zHub=150
@@ -70,63 +77,44 @@ except:
 vmin=np.min(levels)
 vmax=np.max(levels)
 
-I, iMax, nDigits, sFmt = vtkIndices(folder, simbaseref+'.Low.DisYZ01')
-print(I)
-
-I = np.asarray(I)
-ISel = I[I>iStart]
-
 
 
 # --- Load all and export
 # U = np.zeros(len(y), len(z) len(Isel))
 for simbase in SIMS:
+    I, iMax, nDigits, sFmt = vtkIndices(folder, simbase+'.Low.DisYZ01')
+    print(I[0],I[-1])
+    I = np.asarray(I)
+    ISel = I[I>iStart]
+
     ds = loadAllPlanes(folder, simbase, nPlanes, ISel, outDir=outDir, verbose=False)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# --- Load 2 compare
-
-iPlane= 1
-i = 110
-y,z,Y,Z,Uref,V,W =  extractFFPlane('YZ', folder, simbaseref, iPlane=iPlane, iTime=i, verbose=True, sFmt=sFmt)
-y,z,Y,Z,Uwat,V,W =  extractFFPlane('YZ', folder, simbasewat, iPlane=iPlane, iTime=i, verbose=True, sFmt=sFmt)
-
-iH= np.argmin(np.abs(z-zHub))
-print(Uref.shape)
-print('len(z)', len(z), 'iH',iH, z[iH], zHub)
-
-
-# --- Example of plot
-fig,axes = plt.subplots(1, 2, sharey=False, figsize=(6.4,4.8)) # (6.4,4.8)
-fig.subplots_adjust(left=0.12, right=0.95, top=0.95, bottom=0.11, hspace=0.20, wspace=0.20)
-img = axes[0].contourf(Y, Z, Uref.T/U0, levels=levels, vmin=vmin, vmax=vmax)
-img = axes[1].contourf(Y, Z, Uwat.T/U0, levels=levels, vmin=vmin, vmax=vmax)
-axes[0].set_aspect('equal')
-axes[1].set_aspect('equal')
-# ax.set_xlabel('')
-# ax.set_ylabel('')
-# ax.legend()
-cb = colorbar(img, pad=0.1)
+# # --- Load 2 compare
+# 
+# iPlane= 1
+# i = 110
+# y,z,Y,Z,Uref,V,W =  extractFFPlane('YZ', folder, simbaseref, iPlane=iPlane, iTime=i, verbose=True, sFmt=sFmt)
+# y,z,Y,Z,Uwat,V,W =  extractFFPlane('YZ', folder, simbasewat, iPlane=iPlane, iTime=i, verbose=True, sFmt=sFmt)
+# 
+# iH= np.argmin(np.abs(z-zHub))
+# print(Uref.shape)
+# print('len(z)', len(z), 'iH',iH, z[iH], zHub)
+# 
+# 
+# # --- Example of plot
+# fig,axes = plt.subplots(1, 2, sharey=False, figsize=(6.4,4.8)) # (6.4,4.8)
+# fig.subplots_adjust(left=0.12, right=0.95, top=0.95, bottom=0.11, hspace=0.20, wspace=0.20)
+# img = axes[0].contourf(Y, Z, Uref.T/U0, levels=levels, vmin=vmin, vmax=vmax)
+# img = axes[1].contourf(Y, Z, Uwat.T/U0, levels=levels, vmin=vmin, vmax=vmax)
+# axes[0].set_aspect('equal')
+# axes[1].set_aspect('equal')
+# # ax.set_xlabel('')
+# # ax.set_ylabel('')
+# # ax.legend()
+# cb = colorbar(img, pad=0.1)
 
 
 

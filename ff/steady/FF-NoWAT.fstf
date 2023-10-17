@@ -3,7 +3,7 @@ Two IEA15MW turbines separated by 7D
 --- SIMULATION CONTROL ---
 False              Echo               - Echo input data to <RootName>.ech? (flag)
 FATAL              AbortLevel         - Error level when simulation should abort (string) {"WARNING", "SEVERE", "FATAL"}
-900                TMax               - Total run time (s) [>=0.0]
+3700               TMax               - Total run time (s) [>=0.0]
 False              UseSC              - Use a super controller? (flag)
 2                  Mod_AmbWind        - Ambient wind model (-) (switch) {1: high-fidelity precursor in VTK format, 2: one InflowWind module, 3: multiple instances of InflowWind module}
 2                  Mod_WaveField      - Wave field handling (-) (switch) {1: use individual HydroDyn inputs without adjustment, 2: adjust wave phases based on turbine offsets from farm origin}
@@ -79,8 +79,10 @@ DEFAULT            Mod_Projection     - Switch to select how the wake plane velo
 "../MannBoxDB/FFDB_D100_512x512x64.u" WAT_BoxFile_u  - Filepath to the file containing the u-component of the turbulence box (either predefined or user-defined; expected filename endings of ".u" or "u.bin") (quoted string)
 512, 512, 64       WAT_NxNyNz         - Number of points in the x, y, and z directions of the WAT_BoxFile [used only if WAT=2, derived value if WAT=1] (m)
 0.0  0.0  0.0      WAT_DxDyDz         - Distance (in meters) between points in the x, y, and z directions of the WAT_BoxFile [used only if WAT=2, derived value if WAT=1] (m)
+True               WAT_ScaleBox       - Flag to scale the input turbulence box to zero mean and unit standard deviation at every node [DEFAULT=True] (flag)
 default            WAT_k_Def          - Calibrated parameter for the influence of the wake deficit in the wake-added turbulence [>=0.0, no upper bound] or DEFAULT [DEFAULT=0.6]
 default            WAT_k_Grad         - Calibrated parameter for the influence of the radial velocity gradient of the wake deficit in the wake-added turbulence [>=0.0, no upper bound] or DEFAULT [DEFAULT=0.35]
+0.0                WAT_D_BrkDwn       - Downstream distance in rotor diameter after which WAT scaling has reached 100% capacity [>=0] or DEFAULT [DEFAULT=1] (D)
 --- VISUALIZATION ---
 False              WrDisWind          - Write low- and high-resolution disturbed wind data to <RootName>.Low.Dis.t<n>.vtk etc.? (flag)
 1                  NOutDisWindXY      - Number of XY planes for output of disturbed wind data across the low-resolution domain to <RootName>.Low.DisXY<n_out>.t<n>.vtk (-) [0 to 9]
@@ -91,7 +93,7 @@ False              WrDisWind          - Write low- and high-resolution disturbed
 0.                 OutDisWindY        - Y coordinates of XZ planes for output of disturbed wind data across the low-resolution domain (m) [1 to NOutDisWindXZ] [unused for NOutDisWindXZ=0]
 3.0                WrDisDT            - Time step for disturbed wind visualization output (s) [>0.0] or DEFAULT [DEFAULT=DT_Low or DT_Low-VTK] [unused for WrDisWind=False and NOutDisWindXY=NOutDisWindYZ=NOutDisWindXZ=0]
 --- OUTPUT ---
-True               SumPrint           - Print summary data to <RootName>.sum? (flag)
+False              SumPrint           - Print summary data to <RootName>.sum? (flag)
 99999.9            ChkptTime          - Amount of time between creating checkpoint files for potential restart (s) [>0.0]
 0.0                TStart             - Time to begin tabular output (s) [>=0.0]
 1                  OutFileFmt         - Format for tabular (time-marching) output file (switch) {1: text file [<RootName>.out], 2: binary file [<RootName>.outb], 3: both}
@@ -102,10 +104,10 @@ False              OutAllPlanes       - Output all wake planes at all time steps
 0, 1, 2, 5, 7, 9, 11, 13, 15, 17, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39  OutRadii     - List of radial nodes         for wake output for an individual rotor (-) [1 to NOutRadii] [unused for NOutRadii=0]
 6                  NOutDist           - Number of downstream distances for wake output for an individual rotor (-) [0 to 9 ]
 0,240,480,720,960,1200     OutDist            - List of downstream distances for wake output for an individual rotor (m) [1 to NOutDist ] [unused for NOutDist =0]
-0                  NWindVel           - Number of points for wind output (-) [0 to 9]
-0.0                WindVelX           - List of coordinates in the X direction for wind output (m) [1 to NWindVel] [unused for NWindVel=0]
-0.0                WindVelY           - List of coordinates in the Y direction for wind output (m) [1 to NWindVel] [unused for NWindVel=0]
-90.0               WindVelZ           - List of coordinates in the Z direction for wind output (m) [1 to NWindVel] [unused for NWindVel=0]
+3                  NWindVel           - Number of points for wind output (-) [0 to 9]
+240.0, 480.0 , 720.0                WindVelX           - List of coordinates in the X direction for wind output (m) [1 to NWindVel] [unused for NWindVel=0]
+ 0.0  ,  0.0  ,  0.0                WindVelY           - List of coordinates in the Y direction for wind output (m) [1 to NWindVel] [unused for NWindVel=0]
+90.0  , 90.0 ,  90.0               WindVelZ           - List of coordinates in the Z direction for wind output (m) [1 to NWindVel] [unused for NWindVel=0]
                    OutList            - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels (quoted string)
 "RtVAmbT1"
 "RtVAmbT2"
@@ -119,6 +121,15 @@ False              OutAllPlanes       - Output all wake planes at all time steps
 "WkPosXT2D1" 
 "WkPosYT2D1" 
 "WkPosZT2D1" 
+"W1VDisX"
+"W2VDisX"
+"W3VDisX"
+"W1VDisY"
+"W2VDisY"
+"W3VDisY"
+"W1VDisZ"
+"W2VDisZ"
+"W3VDisZ"
 "CtT1N01       , CtT1N02       , CtT1N03       , CtT1N04       , CtT1N05       , CtT1N06       , CtT1N07       , CtT1N08       , CtT1N09       , CtT1N10"
 "CtT1N11       , CtT1N12       , CtT1N13       , CtT1N14       , CtT1N15       , CtT1N16       , CtT1N17       , CtT1N18       , CtT1N19       , CtT1N20"
 "WkDfVxT1N01D1 , WkDfVxT1N02D1 , WkDfVxT1N03D1 , WkDfVxT1N04D1 , WkDfVxT1N05D1 , WkDfVxT1N06D1 , WkDfVxT1N07D1 , WkDfVxT1N08D1 , WkDfVxT1N09D1 , WkDfVxT1N10D1"
@@ -142,3 +153,4 @@ False              OutAllPlanes       - Output all wake planes at all time steps
 "WkDfVxT2N01D5 , WkDfVxT2N02D5 , WkDfVxT2N03D5 , WkDfVxT2N04D5 , WkDfVxT2N05D5 , WkDfVxT2N06D5 , WkDfVxT2N07D5 , WkDfVxT2N08D5 , WkDfVxT2N09D5 , WkDfVxT2N10D5"
 "WkDfVxT2N11D5 , WkDfVxT2N12D5 , WkDfVxT2N13D5 , WkDfVxT2N14D5 , WkDfVxT2N15D5 , WkDfVxT2N16D5 , WkDfVxT2N17D5 , WkDfVxT2N18D5 , WkDfVxT2N19D5 , WkDfVxT2N20D5"
 END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
+0.0    WAT_k_Off          - Calibrated parameter for the influence of the radial velocity gradient of the wake deficit in the wake-added turbulence [>=0.0, no upper bound] or DEFAULT [DEFAULT=0.35]

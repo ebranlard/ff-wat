@@ -2,10 +2,10 @@
 
 
 
-set mainDir=/projects/car/rthedin/amr_runs/04_2turbine_coherencestudy/
+set mainDir=/home/ebranlar/wat/amr/03-iea15-0WT/
 
-set simDir=02_2turbine_neutral_8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_2ref
+set simDir=neutral
 
 mkdir post_processing
 
-scp -o MACs=hmac-sha2-512 ebranlar@eagle.hpc.nrel.gov:%mainDir%/%simDir%/post_processing/*.nc post_processing/.
+scp -o MACs=hmac-sha2-512 ebranlar@eagle.hpc.nrel.gov:%mainDir%/%simDir%/post_processing/planes*.nc post_processing/.
