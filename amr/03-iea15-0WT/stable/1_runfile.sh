@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=stable_0wt
+#SBATCH --job-name=stab_0wt
 #SBATCH --nodes=68
 #SBATCH --time=8-00
-#SBATCH --account=isda
+#SBATCH --account=XXXXX
 #SBATCH --mail-user=emmanuel.branlard@nrel.gov
 #SBATCH --mail-type BEGIN,END,FAIL              # Send e-mail when job begins, ends or fails
 #SBATCH -o slurm-%x-%j.log                      # Output
@@ -31,9 +31,8 @@ module load cmake
 module load mkl
 module load netcdf-c/4.7.3
 
-#amrbin='/home/rthedin/repos/amr-wind/build/amr_wind'
-#amrbin='/home/rthedin/repos/amr-wind/build_main_2022_02_02_ef466d9/amr_wind'
-amrbin='/home/rthedin/repos/amr-wind_2023_03_29_openfastrestart/amr-wind/build_main_2023_03_29_9f1ba92/amr_wind'
+# amrbin='/home/ebranlar/amr-wind-bin/amr_wind'
+amrbin=./amr_wind
 input=amr.i
 
 export EXAWIND_DIR=/nopt/nrel/ecom/exawind/exawind-2020-09-21/install/gcc
