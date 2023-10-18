@@ -7,3 +7,10 @@ vtk*
 *.u
 *.v
 *.w
+
+*.sum
+*.echo
+
+
+FAST.Farm*
+openfast*
