@@ -1,0 +1,31 @@
+#!/bin/bash
+#SBATCH --job-name=neut-ff
+#SBATCH --nodes=1
+#SBATCH --time=0-36
+#SBATCH --account=isda
+#SBATCH --mail-user=emmanuel.branlard@nrel.gov
+#SBATCH --mail-type BEGIN,END,FAIL              # Send e-mail when job begins, ends or fails
+#SBATCH -o slurm-%x-%j.log                      # Output
+
+cores=$(( 36*$SLURM_JOB_NUM_NODES ))
+
+echo "# Working directory:" $SLURM_SUBMIT_DIR
+echo "# Job name:" $SLURM_JOB_NAME
+echo "# Job ID: " $SLURM_JOBID
+echo "# Submit time is" $(squeue -u $USER -o '%30j %20V' | grep -e $SLURM_JOB_NAME | awk '{print $2}')
+echo "# Starting job at: " $(date)
+echo "# Using: " $cores "core(s)"
+
+module purge
+module purge
+module load comp-intel mkl
+
+
+ffbin= '/home/ebranlar/_bin/FAST.Farm-vWAT'
+
+$ffbin FF-NoWAT.fstf 2>&1 &
+$ffbin FF-WAT.fstf 2>&1
+
+wait
+
+echo "# Ending job at: " $(date)

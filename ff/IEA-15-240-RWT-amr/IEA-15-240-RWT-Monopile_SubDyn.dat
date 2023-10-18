@@ -1,7 +1,7 @@
 ----------- SubDyn v1.01.x MultiMember Support Structure Input File ------------
 IEA 15 MW offshore reference model monopile configuration
 -------------------------- SIMULATION CONTROL  ---------------------------------
-True             Echo        - Echo input data to "<rootname>.SD.ech" (flag)
+False            Echo        - Echo input data to "<rootname>.SD.ech" (flag)
 "DEFAULT"        SDdeltaT    - Local Integration Step. If "default", the glue-code integration step will be used.
              3   IntMethod   - Integration Method [1/2/3/4 = RK4/AB4/ABM4/AM2].
 True             SttcSolve   - Solve dynamics about static equilibrium point
@@ -93,7 +93,7 @@ COSMID    COSM11    COSM12    COSM13    COSM21    COSM22    COSM23    COSM31    
     (-)        (kg)      (kg*m^2)    (kg*m^2)    (kg*m^2)    (kg*m^2)    (kg*m^2)    (kg*m^2)       (m)         (m)         (m)    
     10       100000.0    1250000.0   1250000.0   2500000.0      0.0         0.0         0.0         0.0         0.0         0.0    
 ---------------------------- OUTPUT: SUMMARY & OUTFILE ------------------------------
-True             SumPrint    - Output a Summary File (flag).It contains: matrices K,M  and C-B reduced M_BB, M-BM, K_BB, K_MM(OMG^2), PHI_R, PHI_L. It can also contain COSMs if requested.
+False            SumPrint    - Output a Summary File (flag).It contains: matrices K,M  and C-B reduced M_BB, M-BM, K_BB, K_MM(OMG^2), PHI_R, PHI_L. It can also contain COSMs if requested.
 0                OutCBModes  - Output Guyan and Craig-Bampton modes {0: No output, 1: JSON output}, (flag)
 0                OutFEMModes - Output first 30 FEM modes {0: No output, 1: JSON output} (flag)
 False            OutCOSM     - Output cosine matrices with the selected output member forces (flag)

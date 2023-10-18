@@ -3,11 +3,11 @@ IEA 15 MW Offshore Reference Turbine for openfast v 3.3 and up
 ======  General Options  ============================================================================
 False                  Echo        - Echo the input to "<rootname>.AD.ech"?  (flag)
 default                DTAero      - Time interval for aerodynamic calculations {or "default"} (s)
-0                      WakeMod     - Type of wake/induction model (switch) {0=none, 1=BEMT, 2=DBEMT, 3=OLAF} [WakeMod cannot be 2 or 3 when linearizing]
+1                      WakeMod     - Type of wake/induction model (switch) {0=none, 1=BEMT, 2=DBEMT, 3=OLAF} [WakeMod cannot be 2 or 3 when linearizing]
 2                      AFAeroMod   - Type of blade airfoil aerodynamics model (switch) {1=steady model, 2=Beddoes-Leishman unsteady model} [AFAeroMod must be 1 when linearizing]
-0                      TwrPotent   - Type tower influence on wind based on potential flow around the tower (switch) {0=none, 1=baseline potential flow, 2=potential flow with Bak correction}
-0                      TwrShadow   - Calculate tower influence on wind based on downstream tower shadow (switch) {0=none, 1=Powles model, 2=Eames model}
-False                  TwrAero     - Calculate tower aerodynamic loads? (flag)
+1                      TwrPotent   - Type tower influence on wind based on potential flow around the tower (switch) {0=none, 1=baseline potential flow, 2=potential flow with Bak correction}
+1                      TwrShadow   - Calculate tower influence on wind based on downstream tower shadow (switch) {0=none, 1=Powles model, 2=Eames model}
+True                   TwrAero     - Calculate tower aerodynamic loads? (flag)
 False                  FrozenWake  - Assume frozen wake during linearization? (flag) [used only when WakeMod=1 and when linearizing]
 False                  CavitCheck  - Perform cavitation check? (flag) [AFAeroMod must be 1 when CavitCheck=true]
 False         Buoyancy           - Include buoyancy effects? (flag)
@@ -33,7 +33,7 @@ default                IndToler    - Convergence tolerance for BEMT nonlinear so
 2                      DBEMT_Mod   - Type of dynamic BEMT (DBEMT) model {1=constant tau1, 2=time-dependent tau1} (-) [used only when WakeMod=2]
 29.03                  tau1_const  - Time constant for DBEMT (s) [used only when WakeMod=2 and DBEMT_Mod=1]
 ======  OLAF -- cOnvecting LAgrangian Filaments (Free Vortex Wake) Theory Options  ================== [used only when WakeMod=3]
-IEA-15-240-RWT_OLAF.dat OLAFInputFileName - Input file for OLAF [used only when WakeMod=3]
+"unused"               OLAFInputFileName - Input file for OLAF [used only when WakeMod=3]
 ======  Beddoes-Leishman Unsteady Airfoil Aerodynamics Options  ===================================== [used only when AFAeroMod=2]
 3                      UAMod       - Unsteady Aero Model Switch (switch) {1=Baseline model (Original), 2=Gonzalez's variant (changes in Cn,Cc,Cm), 3=Minnema/Pierce variant (changes in Cc and Cm)} [used only when AFAeroMod=2]
 True                   FLookup     - Flag to indicate whether a lookup for f' will be calculated (TRUE) or whether best-fit exponential equations will be used (FALSE); if FALSE S1-S4 must be provided in airfoil input files (flag) [used only when AFAeroMod=2]
