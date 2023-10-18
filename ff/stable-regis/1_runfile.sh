@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=neut-ff
+#SBATCH --job-name=stab-ff
 #SBATCH --nodes=1
 #SBATCH --time=0-01
 #SBATCH --account=isda
