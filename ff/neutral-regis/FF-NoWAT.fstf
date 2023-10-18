@@ -9,7 +9,7 @@ False         UseSC         - Use a super controller? (flag)
 2             Mod_WaveField - Wave field handling (-) (switch) {1: use individual HydroDyn inputs without adjustment, 2: adjust wave phases based on turbine offsets from farm origin}
 0             Mod_SharedMooring - Shared mooring system model (switch) {0: None, 3=MoorDyn}}
 --- SUPER CONTROLLER --- [used only for UseSC=True]
-/path/to/SC_DLL.dll SC_FileName   - Name/location of the dynamic library {.dll [Windows] or .so [Linux]} containing the Super Controller algorithms (quoated string)
+"unused"           SC_FileName        - Name/location of the dynamic library {.dll [Windows] or .so [Linux]} containing the Super Controller algorithms (quoated string)
 --- SHARED MOORING SYSTEM --- [used only for Mod_SharedMoor>0]
 ""            SharedMoorFile - Name of file containing shared mooring system input parameters (quoted string) [used only when Mod_SharedMooring > 0]
 0.04          DT_Mooring    - Time step for farm-level mooring coupling with each turbine (s) [used only when Mod_SharedMooring > 0]
@@ -38,8 +38,8 @@ False         ChkWndFiles   - Check all the ambient wind files for data consiste
 2             NumTurbines   - Number of wind turbines (-) [>=1] [last 6 columns used only for Mod_AmbWind=2 or 3]
 WT_X            WT_Y            WT_Z            WT_FASTInFile  
 (m)             (m)             (m)             (string)       
-7.01250000e+02	6.41250000e+02	0	"IEA-15-240-RWT-Monopile.T1.fst"
-2.38125000e+03	6.41250000e+02	0	"IEA-15-240-RWT-Monopile.T2.fst"
+7.01250000e+02	6.41250000e+02	0	"Main_T1.fst"
+2.38125000e+03	6.41250000e+02	0	"Main_T2.fst"
 --- WAKE DYNAMICS ---
 1             Mod_Wake      - Switch between wake formulations {1:Polar, 2:Curl, 3:Cartesian} (-) (switch)
 5             dr            - Radial increment of radial finite-difference grid (m) [>0.0]
