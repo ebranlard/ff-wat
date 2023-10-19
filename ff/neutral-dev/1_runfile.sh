@@ -11,7 +11,7 @@ echo "# Job name:" $SLURM_JOB_NAME
 echo "# Job ID: " $SLURM_JOBID
 echo "# Starting job at: " $(date)
 
-export OMP_NUM_THREADS=2
+export OMP_NUM_THREADS=1
 
 ffbin='/home/ebranlar/_bin/FAST.Farm-dev-gcc'
 source /home/ebranlar/_env/ebra-gcc.sh

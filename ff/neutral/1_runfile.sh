@@ -14,8 +14,10 @@ echo "# Starting job at: " $(date)
 # ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
 # source /home/ebranlar/_env/ebra.sh
 
-ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT-Regis-Nrel'
-source /home/ebranlar/_env/regis-nrel.sh
+#ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT-Regis-Nrel'
+#source /home/ebranlar/_env/regis-nrel.sh
+
+export OMP_NUM_THREADS=1
 
 ffbin='/home/ebranlar/_bin/FAST.Farm-wat-gcc'
 source /home/ebranlar/_env/ebra-gcc.sh
