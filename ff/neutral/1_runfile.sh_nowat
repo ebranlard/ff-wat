@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=neut-wa
+#SBATCH --job-name=neut-no
 #SBATCH --nodes=1
 #SBATCH --time=0-36
 #SBATCH --account=isda
@@ -22,7 +22,7 @@ module load hdf5/1.14.1-2-intel-oneapi-mpi-intel
 
 ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
 
-$ffbin FF-WAT.fstf 2>&1
+$ffbin FF-NoWAT.fstf 2>&1
 
 wait
 

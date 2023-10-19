@@ -13,6 +13,7 @@ vtk*
 *.echo
 *.ech
 *.dbg
+*.log
 
 
 FAST.Farm*
