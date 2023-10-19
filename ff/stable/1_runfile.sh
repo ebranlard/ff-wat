@@ -15,15 +15,18 @@ echo "# Job ID: " $SLURM_JOBID
 echo "# Starting job at: " $(date)
 echo "# Using: " $cores "core(s)"
 
-module purge
-module load craype-x86-spr
-module load intel-oneapi-mkl/2023.2.0-intel
-module load intel-oneapi-mpi/2021.10.0-intel
-module load intel-oneapi-compilers/2023.2.0
-module load hdf5/1.14.1-2-intel-oneapi-mpi-intel
+# ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
+# module purge
+# module load craype-x86-spr
+# module load intel-oneapi-mkl/2023.2.0-intel
+# module load intel-oneapi-mpi/2021.10.0-intel
+# module load intel-oneapi-compilers/2023.2.0
+# module load hdf5/1.14.1-2-intel-oneapi-mpi-intel
 
-ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
+ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT-Regis-Nrel'
+source /home/ebranlar/_env/regis-nrel.sh
 
-$ffbin FF-WAT.fstf 2>&1
+$ffbin FF-WAT.fstf  2>&1
+
 
 echo "# Ending job at: " $(date)

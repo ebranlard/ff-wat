@@ -24,6 +24,6 @@ module load hdf5/1.14.1-2-intel-oneapi-mpi-intel
 
 ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
 
-$ffbin FF-NoWAT.fstf 2>&1
+$ffbin FF-NoWAT.fstf 
 
 echo "# Ending job at: " $(date)

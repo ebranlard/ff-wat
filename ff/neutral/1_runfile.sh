@@ -6,24 +6,20 @@
 #SBATCH --mail-user=emmanuel.branlard@nrel.gov
 #SBATCH --mail-type BEGIN,END,FAIL              # Send e-mail when job begins, ends or fails
 #SBATCH -o slurm-%x.log                      # Output
-
-
 echo "# Working directory:" $SLURM_SUBMIT_DIR
 echo "# Job name:" $SLURM_JOB_NAME
 echo "# Job ID: " $SLURM_JOBID
 echo "# Starting job at: " $(date)
 
-module purge
-module load craype-x86-spr
-module load intel-oneapi-mkl/2023.2.0-intel
-module load intel-oneapi-mpi/2021.10.0-intel
-module load intel-oneapi-compilers/2023.2.0
-module load hdf5/1.14.1-2-intel-oneapi-mpi-intel
+# ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
+# source /home/ebranlar/_env/ebra.sh
 
-ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
+ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT-Regis-Nrel'
+source /home/ebranlar/_env/regis-nrel.sh
 
-$ffbin FF-WAT.fstf 2>&1
+ffbin='/home/ebranlar/_bin/FAST.Farm-wat-gcc'
+source /home/ebranlar/_env/ebra-gcc.sh
 
-wait
+$ffbin FF-WAT.fstf
 
 echo "# Ending job at: " $(date)
