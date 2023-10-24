@@ -13,15 +13,14 @@ echo "# Starting job at: " $(date)
 
 export OMP_NUM_THREADS=102
 
-# ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
-# source /home/ebranlar/_env/ebra.sh
+#ffbin='/home/ebranlar/_bin/FAST.Farm-wat-gcc'
+#source /home/ebranlar/_env/ebra-gcc.sh
 
-# ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT-Regis-Nrel'
-# source /home/ebranlar/_env/regis-nrel.sh
+ffbin='/home/ebranlar/_bin/FAST.Farm-wat-intel'
+source /home/ebranlar/_env/ebra-intel.sh
 
-ffbin='/home/ebranlar/_bin/FAST.Farm-wat-gcc'
-source /home/ebranlar/_env/ebra-gcc.sh
+echo "# Binary: " $ffbin
 
-$ffbin FF-WAT.fstf
+$ffbin FF-WAT.fstf 2>&1
 
 echo "# Ending job at: " $(date)
