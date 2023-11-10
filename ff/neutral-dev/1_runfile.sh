@@ -11,16 +11,15 @@ echo "# Job name:" $SLURM_JOB_NAME
 echo "# Job ID: " $SLURM_JOBID
 echo "# Starting job at: " $(date)
 
-export OMP_NUM_THREADS=2
+export OMP_NUM_THREADS=10
 
-ffbin='/home/ebranlar/_bin/FAST.Farm-dev-gcc'
-source /home/ebranlar/_env/ebra-gcc.sh
+#ffbin='/home/ebranlar/_bin/FAST.Farm-dev-gcc'
+#source /home/ebranlar/_env/ebra-gcc.sh
 
-#ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT'
-#source /home/ebranlar/_env/ebra.sh
+ffbin='/home/ebranlar/_bin/FAST.Farm-dev-intel'
+source /home/ebranlar/_env/ebra-intel.sh
 
-# ffbin='/home/ebranlar/_bin/FAST.Farm-vWAT-Regis-Nrel'
-# source /home/ebranlar/_env/regis-nrel.sh
+echo "# Binary: " $(ffbin)
 
 $ffbin FF.fstf 2>&1
 
