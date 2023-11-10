@@ -40,13 +40,9 @@ for case in ['neutral', 'stable']:
     ds22= xarray.open_dataset(os.path.join(datapath2,'HubHeightWT2.nc'))
 
     # --- Intersection of time
-    it1 = np.max(ds01.it.values)
-    it2 = np.max(ds21.it.values)
-    it_min = min(it1, it2)
-    it_max = max(it1, it2)
-    ITime = np.arange(it_min)
+    ITime = common_itime(ds01, ds21)
 
-    y = ds01.y.values-xyWT1[1]
+    y = ds01.y.values
     iy0 = np.argmin(np.abs(y-0    ))
 
     # --------------------------------------------------------------------------------}
@@ -77,7 +73,7 @@ for case in ['neutral', 'stable']:
             axes[1,0].set_ylabel('Velocity [m/s]')
         #     axes[1,0].set_xlim([0,300])
             axes[0,0].legend()
-            y_D=float((ds01.y[iy]-xyWT1[1])/D)
+            y_D=float((ds01.y[iy])/D)
             fig.suptitle('Velocity at point y={:.1f}D'.format(y_D))
             fig.savefig(figbase+ 'PointVelocity_{:.1f}D.png'.format(y_D))
 
