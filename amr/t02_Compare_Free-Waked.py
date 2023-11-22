@@ -20,17 +20,12 @@ IPlot += [ 3] # Var
 # IPlot += [ 4] # k^2 / Var
 
 # --- Parameters 
-figsPath='_figs/'
 
-case = 'neutral'
-case = 'stable' 
 
-for case in ['neutral', 'stable']:
-# for case in ['neutral']:
 
     # --- Derived parameters
     U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(case)
-    figbase = figsPath+'{}_02WT_'.format(case)
+    figbase = figDir+'{}_02WT_'.format(case)
     datapath0 = os.path.join('03-iea15-0WT/', case, 'processedData')
     datapath2 = os.path.join('02-iea15-2WT/', case, 'processedData')
 

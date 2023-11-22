@@ -1,4 +1,14 @@
-from t12_PlotK import *
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import xarray
+# Local 
+import weio
+from weio.pickle_file import PickleFile
+from welib.essentials import *
+from welib.tools.curve_fitting import model_fit
+from helper_functions import *
 
 outPath='_out_KFit/'
 figsPath = '_figs_KFit/'
@@ -113,3 +123,5 @@ if __name__ == '__main__':
 #     plotKFits(True, D, smooth=smooth)
 
     plt.show()
+
+    pass

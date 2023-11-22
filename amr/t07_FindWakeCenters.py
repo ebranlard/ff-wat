@@ -1,7 +1,6 @@
 """ 
 Find wake center using Gaussian and Contour method, save as CSV
 """
-
 import os
 import numpy as np
 import pandas as pd
@@ -13,26 +12,12 @@ from welib.essentials import *
 from helper_functions import *
 from windtools.amrwind.post_processing  import Sampling
 
-itimeMin = 500 # time index before which we don't expect wakes to be present at all locations.
-plot=False
 
-
-Cases={}
-Cases['neutral2'] ={'stability':'neutral','nWT':2, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc']}
-# Cases['stable2']  ={'stability':'stable' ,'nWT':2, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc']}
-# Cases['unstable2']={'stability':'unstable' ,'nWT':2, 'planeFileWT':['planesT176826.nc','planesT276826.nc']}
-# Cases['neutral0'] ={'stability':'neutral','nWT':0, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc']}
-# Cases['stable0']  ={'stability':'stable' ,'nWT':0, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc']}
-
-# --- Loop on all cases
-for casename, Case in Cases.items():
-
+def findWakeCenters(Case, plot=False):
+    itimeMin = 500 # time index before which we don't expect wakes to be present at all locations.
     case = Case['stability']
-
     # ---
-    U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(case)
-    HubHeight  =  150
-    refArea = np.pi*D**2/4
+    U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(case)
     LESpath    = os.path.join('02-iea15-{}WT/'.format(Case['nWT']), case);
     outputPath = os.path.join(LESpath, 'processedData')
     try:
@@ -42,18 +27,14 @@ for casename, Case in Cases.items():
 
     for iWT in [1, 2]:
         # --- Read 
-        if iWT==1:
-            xyWT=xyWT1
-        else:
-            xyWT=xyWT2
         planePathWT = os.path.join(LESpath, 'post_processing', Case['planeFileWT'][iWT-1])
         sp = Sampling(planePathWT)
         print('>>> Reading', planePathWT)
         with Timer('Reading...'):
             ds = sp.read_single_group('pT{}'.format(iWT), simCompleted=True).rename_dims({'samplingtimestep':'it'})
             ds['z'] = ds.z -(np.max(ds.z)+np.min(ds.z))/2
-            ds['y'] = ds.y-xyWT[1]
-            ds['x'] = np.around((ds.x-xyWT[0])/D)
+            ds['y'] = ds.y-xyWT[iWT][1]
+            ds['x'] = np.around((ds.x-xyWT[iWT][0])/D)
         print(ds)
 
 
@@ -110,10 +91,24 @@ for casename, Case in Cases.items():
         cols = ['Time_[s]'] 
         for iP in xPlanes:
             cols += ['y{}'.format(iP) , 'z{}'.format(iP)]
-        df = pd.DataFrame(data=np.column_stack((ITime, WakeTrajectoriesC)), columns=cols)
-        df.to_csv(os.path.join(outputPath, 'MeanderWT{:d}_TrajectoriesC.csv'.format(iWT)), index=False)
-        df = pd.DataFrame(data=np.column_stack((ITime, WakeTrajectoriesG)), columns=cols)
-        df.to_csv(os.path.join(outputPath, 'MeanderWT{:d}_TrajectoriesG.csv'.format(iWT)), index=False)
+        dfC = pd.DataFrame(data=np.column_stack((ITime, WakeTrajectoriesC)), columns=cols)
+        dfC.to_csv(os.path.join(outputPath, 'MeanderWT{:d}_TrajectoriesC.csv'.format(iWT)), index=False)
+        dfG = pd.DataFrame(data=np.column_stack((ITime, WakeTrajectoriesG)), columns=cols)
+        dfG.to_csv(os.path.join(outputPath, 'MeanderWT{:d}_TrajectoriesG.csv'.format(iWT)), index=False)
+    return dfC, dfG
+
                         
 
-plt.show()
+if __name__ == '__main__':
+    Cases={}
+    # Cases['neutral2WT'] ={'stability':'neutral','nWT':2, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc']}
+    Cases['stable2WT']  ={'stability':'stable' ,'nWT':2, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc']}
+    Cases['unstable2WT']={'stability':'unstable' ,'nWT':2, 'planeFileWT':['planesT176826.nc','planesT276826.nc']}
+    # Cases['neutral0WT'] ={'stability':'neutral','nWT':0, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc']}
+    # Cases['stable0WT']  ={'stability':'stable' ,'nWT':0, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc']}
+
+    # --- Loop on all cases
+    for casename, Case in Cases.items():
+        dfC, dfG = findWakeCenters(Case, plot=False)
+
+    plt.show()
