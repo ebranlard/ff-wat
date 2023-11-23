@@ -4,85 +4,104 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatch
-# Local 
-import weio
-from weio.pickle_file import PickleFile
-from welib.essentials import *
-from helper_functions import *
+# External
 from windtools.amrwind.post_processing  import Sampling
-
-itimeMin = 500 # time index before which we don't expect wakes to be present at all locations.
-check=False
-plot=False
+# Local 
+import welib.weio as weio
+from helper_functions import *
 
 # --- Loop on all cases
-def saveMeanderingFrame(casename, Case, plot=False, nFigsMax=10):
-    u1=0
-    u2=10
-    case = Case['stability']
+def saveMeanderingFrameLines(caseName, Case, plot=False, nFigsMax=3, outDir='_out', figDir='_fig', iTimeMin=500):
+    print(f'-----------------------------------------------------------------------')
+    print(f'--- saveMeanderingFrameLines - Case: {caseName}')
+    print(f'-----------------------------------------------------------------------')
     nWT  = Case['nWT']
     # --- derived parameters
-    LESpath = os.path.join('02-iea15-{}WT/'.format(Case['nWT']), case); 
-    outputPath   = os.path.join(LESpath, 'processedData')
-    outputPathTraj = os.path.join('02-iea15-2WT/', case, 'processedData')
+    outDirHori = os.path.join(outDir  , 'lines')
+    outDirTraj   = os.path.join(outDir, 'trajectories')
+    figDirTrack  = os.path.join(figDir, '_figs_tracking')
+    if not os.path.exists(outDirHori):
+        os.makedirs(outDirHori)
+    if not os.path.exists(figDirTrack):
+        os.makedirs(figDirTrack)
 
-    U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(case)
-    for iWT in [1, 2]:
-        # --- Reading trajectories
-        trajFile = os.path.join(outputPathTraj, 'MeanderWT{:d}_TrajectoriesM.csv'.format(iWT))
-        print('>>> Reading',trajFile)
-        dfTrajM = weio.read(trajFile).toDataFrame()
-        dfTrajM.index = dfTrajM['Time_[s]'].astype(int)
+    if nWT in [1,2]:
+        caseNameForTraj = caseName
+        for iWT in [1, 2]:
+            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+    else:
+        # Using meandering frame from 2 WT case
+        caseNameForTraj = caseName.replace('0WT','2WT')
+        print('>>> Case 0WT using trajectories from:', caseNameForTraj)
+        for iWT in [1, 2]:
+            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+        # Using meandering frame from 1 WT case
+        caseNameForTraj = caseName.replace('0WT','1WT')
+        print('>>> Case 0WT using trajectories from:', caseNameForTraj)
+        for iWT in [1, 2]:
+            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
 
-        planePathWT = os.path.join(LESpath, 'post_processing', Case['planeFileWT'][iWT-1])
-        sp = Sampling(planePathWT)
-        print('>>> Reading', planePathWT)
-        with Timer('Reading...'):
-            ds = sp.read_single_group('pT{}'.format(iWT), simCompleted=True).rename_dims({'samplingtimestep':'it'})
-            ds['z'] = ds.z -(np.max(ds.z)+np.min(ds.z))/2
-            ds['y'] = ds.y-xyWT[iWT][1]
-            ds['x'] = np.around((ds.x-xyWT[iWT][0])/D)
-        print(ds)
-        print('ITime :',ds.it[0], ds.it[-1])
+def saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=False, nFigsMax=3, outDir='_out', figDir='_fig', iTimeMin=500):
+    U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(Case['stability'])
+    nWT  = Case['nWT']
+    outDirHori = os.path.join(outDir  , 'lines')
+    outDirTraj   = os.path.join(outDir, 'trajectories')
+    figDirTrack  = os.path.join(figDir, 'tracking')
 
+    # --- Reading trajectories
+    trajFile = os.path.join(outDirTraj, '{}_MeanderWT{:d}_TrajectoriesM.csv'.format(caseNameForTraj, iWT))
+    print('Reading: ',trajFile)
+    dfTrajM = weio.read(trajFile).toDataFrame()
+    dfTrajM.index = dfTrajM['Time_[s]'].astype(int)
 
-        # --- Common variables useful for grid
-        z = ds.z.values
-        y = ds.y.values
-        Z, Y = np.meshgrid(ds.z.values, ds.y.values)
+    # --- Read 
+    planeBase = os.path.join(Case['path'], 'post_processing', 'planesT{}'.format(iWT))
+    with Timer('Reading...'):
+        ds = readPlanes(planeBase, Case['planeTimes'], group='pT{}'.format(iWT))
+        ds['z'] = ds.z -(np.max(ds.z)+np.min(ds.z))/2
+        ds['y'] = ds.y-xyWT[iWT][1]
+        ds['x'] = np.around((ds.x-xyWT[iWT][0])/D)
+    #print(ds)
+    print('ITime :',ds.it.values[0], ds.it.values[-1])
 
-        # Index coordinates of domain center (we take this as a reference
-        icz0= np.argmin(np.abs(z-0)) 
-        icy0= np.argmin(np.abs(y-0))
-        IY0 = np.arange(len(y))
-        IZ0 = np.arange(len(z))
-        iymax = len(y)
-        izmax = len(z)
-        dy = y[1]-y[0]
-        dz = z[1]-z[0]
-        IYBoundary = list(range(195,201))+list(range(0,5))
-        ITime = np.arange(itimeMin, np.max(ds.it))
-        if len(ITime)>len(dfTrajM):
-            print('[WARN] THIS SIMULATION HAS MORE ITIME THAN TRAJECTORY', len(ITime), len(dfTrajM))
-            ITime = ITime[:len(dfTrajM)]
-        #ITime = np.arange(itimeMin, itimeMin+3)
-        # ---  Loop on planes
+    # --- Common variables useful for grid
+    z = ds.z.values
+    y = ds.y.values
+    Z, Y = np.meshgrid(ds.z.values, ds.y.values)
 
-        for iP, x in enumerate(xPlanes):
+    # Index coordinates of domain center (we take this as a reference
+    icz0= np.argmin(np.abs(z-0)) 
+    icy0= np.argmin(np.abs(y-0))
+    IY0 = np.arange(len(y))
+    IZ0 = np.arange(len(z))
+    iymax = len(y)
+    izmax = len(z)
+    dy = y[1]-y[0]
+    dz = z[1]-z[0]
+    IYBoundary = list(range(195,201))+list(range(0,5)) # TODO TODO TODO Not Generic
+    ITime = np.arange(iTimeMin, np.max(ds.it))
+    if len(ITime)>len(dfTrajM):
+        print('[WARN] THIS SIMULATION HAS MORE ITIME THAN TRAJECTORY', len(ITime), len(dfTrajM))
+        ITime = ITime[:len(dfTrajM)]
+    print('ITime :',ITime[0], ITime[-1])
+    # ---  Loop on planes
+
+    for iP, x in enumerate(xPlanes):
+        with Timer('Shift to meandering frame, WT:{} Plane:{}'.format(iWT, iP)):
             nFigs=0
             # Mean shear over full simulation 
             shear = ds.isel(x=iP, y=IYBoundary).mean(dim=['it','y']).u.values
             #for it in np.arange(300,1500,500):
             # for it in [1300]:
-            for it in range(0,itimeMin):
+            for it in range(0,iTimeMin):
                 ds['u'].loc[dict(x=iP, it=it)] = np.nan
 
             # Wake centers
             Yc = dfTrajM['y{}'.format(iP)]
             Zc = dfTrajM['z{}'.format(iP)]
             for it in ITime:
-                if np.mod(it,100)==0:
-                    print('iWT',iWT, 'iP',iP, 'it',it)
+                #if np.mod(it,100)==0:
+                #    print('iWT',iWT, 'iP',iP, 'it',it)
                 # --- Find wake center
                 U = ds.isel(x=iP, it=it).u.values.copy()
                 yc, zc = Yc[it], Zc[it]
@@ -108,10 +127,13 @@ def saveMeanderingFrame(casename, Case, plot=False, nFigsMax=10):
 
                 # --- Plot
                 if plot and nFigs<nFigsMax and np.mod(it,100)in [0,1,2,3,4,5]:
-                    mk = 'o'
-                    col='w'
-                    nFigs=nFigs+1
-                    Z0 = Z.copy()+250
+                    zOff= 250 # TODO TODO
+                    u1    = 0
+                    u2    = 10
+                    mk    = 'o'
+                    col   = 'w'
+                    nFigs = nFigs+1
+                    Z0 = Z.copy()+zOff
 
                     # --- Redo Wake center analysis for plot only
                     if nWT>0:
@@ -122,8 +144,11 @@ def saveMeanderingFrame(casename, Case, plot=False, nFigsMax=10):
                         yc1m, zc1m, contour1m, ax = track_wake_center_plane(Y, Z, U2, D, method='ConstantArea', shear=shear2, plot=False       )
                         yc2m, zc2m, contour2m, ax = track_wake_center_plane(Y, Z, U2, D, method='Gaussian'    , shear=shear2, plot=False , ax=ax, col=fColrs(5), mk='d')
 
-                    figname ='{}__{}D__t{}'.format(casename, ((iWT-1)*len(xPlanes))+iP, it)
-                    print('>>> PLOTTING', nFigs, figname)
+                    if nWT==0:
+                        figname ='{}__IN{}__{}D__t{}'.format(caseName, caseNameForTraj, ((iWT-1)*len(xPlanes))+iP, it)
+                    else:
+                        figname ='{}__{}D__t{}'.format(caseName, ((iWT-1)*len(xPlanes))+iP, it)
+                    #print('>>> PLOTTING', nFigs, figname)
                     fig,axes = plt.subplots(2, 1, sharex=True, figsize=(6.4,6.8)) # (6.4,4.8)
                     fig.subplots_adjust(left=0.12, right=0.95, top=0.90, bottom=0.11, hspace=0.30, wspace=0.20)
                     clevels = np.linspace(u1, u2, 100)
@@ -143,7 +168,7 @@ def saveMeanderingFrame(casename, Case, plot=False, nFigsMax=10):
                     if nWT>0:
                         ax.plot(yc1, zc1, marker='o' , c=Colrs[0], ms=8 , label = 'ConstantArea', alpha=0.6, markeredgewidth=1, markeredgecolor='k')
                         ax.plot(yc2, zc2, marker='d' , c=Colrs[1], ms=8 , label = 'Gaussian'    , alpha=0.6, markeredgewidth=1, markeredgecolor='k')
-                    ax.plot(yc,  zc+250, marker='x'  , c='k'      , ms=10, label = 'Clean', alpha=1.0, markeredgewidth=1, markeredgecolor='k')
+                    ax.plot(yc,  zc+zOff, marker='x'  , c='k'      , ms=10, label = 'Clean', alpha=1.0, markeredgewidth=1, markeredgecolor='k')
                     if nWT>0:
                         try:
                             ax.add_patch(mpatch.PathPatch(mpath.Path(contour1), lw=1,ls='-', facecolor='none', edgecolor=Colrs[0]))
@@ -178,25 +203,36 @@ def saveMeanderingFrame(casename, Case, plot=False, nFigsMax=10):
                     for ax in np.array(axes).flatten():
                         ax.tick_params(direction='in', top=True, right=True, labelright=False, labeltop=False, which='both')
                     fig.suptitle(figname)
-                    fig.savefig('_figs_WakeTracking/'+figname+'.png')
+                    fig.savefig(os.path.join(figDirTrack,figname+'.png'))
                     plt.close(fig)
                     # --- End of Plot
                     
-        # --- Save data
-        # NOTE: only saving at hub height
-        outFile = os.path.join(outputPath, 'MeanderWT{:d}.nc_small'.format(iWT))
-        print('>>> Writing output file', outFile)
-        ds.isel(z=icz0).to_netcdf(outFile)
-        del ds
+    # --- Save data at mean wake center height
+    if nWT==0:
+        outFile = os.path.join(outDirHori, '{}_IN{}_Meander_WT{:d}.nc_small'.format(caseName, caseNameForTraj, iWT))
+    else:
+        outFile = os.path.join(outDirHori, '{}_Meander_WT{:d}.nc_small'.format(caseName, iWT))
+    print('Writing: ', outFile)
+    ds.isel(z=icz0).to_netcdf(outFile)
                         
 if __name__ == '__main__':
-    Cases={}
-#     Cases['neutral2WT'] ={'stability':'neutral','nWT':2, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc']}
-#     Cases['stable2WT']  ={'stability':'stable' ,'nWT':2, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc']}
-#     Cases['unstable2WT']={'stability':'unstable' ,'nWT':2, 'planeFileWT':['planesT176826.nc','planesT276826.nc']}
-    Cases['neutral0WT'] ={'stability':'neutral','nWT':0, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc']}
-    Cases['stable0WT']  ={'stability':'stable' ,'nWT':0, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc']}
-    for casename, Case in Cases.items():
-        saveMeanderingFrame(casename, Case, plot=True)
+
+    caseNames =[]
+#     caseNames += list(AllCases.keys())
+
+#     caseNames += ['neutral2WT']
+#     caseNames += ['stable2WT'] 
+    caseNames += ['unstable2WT'] 
+#     caseNames += ['neutral1WT']
+#     caseNames += ['stable1WT'] 
+#     caseNames += ['unstable1WT'] 
+#     caseNames += ['neutral0WT']
+#     caseNames += ['stable0WT'] 
+#     caseNames += ['unstable0WT'] 
+    Cases = dict((k,v) for k,v in AllCases.items() if k in caseNames)
+
+    for caseName, Case in Cases.items():
+        with FailSafe(caseName, True):
+            saveMeanderingFrameLines(caseName, Case, plot=True)
 
 plt.show()

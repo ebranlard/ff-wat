@@ -8,8 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import xarray
 # Local 
-import weio
-from weio.pickle_file import PickleFile
+from welib.weio.pickle_file import PickleFile
 from welib.essentials import *
 from welib.tools.curve_fitting import model_fit
 from helper_functions import *
@@ -17,43 +16,43 @@ import warnings
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
 
-def fitAvgProfiles(case, Meander=True, symmetric=False, removeBG='Outer', smooth=0):
-    figsPath='_figs_KFit/'
-    outPath='_out_KFit/'
+def fitAvgProfiles(caseName, Case, Meander=True, symmetric=False, removeBG='Outer', smooth=0, outDir='_out', figDir='_figs', iTimeMin=500):
+    label = getLabel(caseName, Meander, symmetric, removeBG, smooth)
+    print(f'-----------------------------------------------------------------------')
+    print(f'--- fitAvgProfiles - Case: {label}')
+    print(f'-----------------------------------------------------------------------')
+    if Case['nWT']==0:
+        WARN('Skipping case (script only makes sense for one or two WT)')
+        return
+
+    outDirFits = os.path.join(outDir, 'kfit')
+    figDir = os.path.join(figDir, '_figs_kfit')
+    if not os.path.exists(figDir):
+        os.makedirs(figDir)
+    if not os.path.exists(outDirFits):
+        os.makedirs(outDirFits)
+
+    prefix = '_Meander_' if Meander else '_Inertial_'
 
     # --- Derived parameters
-    if Meander: 
-        label='KFit_Meander_'+case
-    else:
-        label='KFit_Inertial_'+case
-    if symmetric:
-        label+='_sym'
-    label+='_rm'+removeBG+'_smooth{:d}'.format(smooth)
-    print('>>>>>>>>>>>>> ',label)
-
-    U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(case)
-    datapath0 = os.path.join('02-iea15-0WT/', case, 'processedData')
-    datapath2 = os.path.join('02-iea15-2WT/', case, 'processedData')
+    U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(Case['stability'])
+    outDirHori = os.path.join(outDir, 'lines')
 
     # --- Load horizontal planes
-    if Meander:
-        ds21= xarray.open_dataset(os.path.join(datapath2,'MeanderWT1.nc_small')) # Wake behind turbine 1
-        ds22= xarray.open_dataset(os.path.join(datapath2,'MeanderWT2.nc_small')) # Wake behind turbine 2
-        try:
-            ds01= xarray.open_dataset(os.path.join(datapath0,'MeanderWT1.nc_small')) # Wake behind turbine 1 - No turbine
-            ds02= xarray.open_dataset(os.path.join(datapath0,'MeanderWT2.nc_small')) # Wake behind turbine 2 - No turbine
-        except:
-            ds01=ds21.copy()
-            ds02=ds22.copy()
+    ds21 = readDataSet(os.path.join(outDirHori, caseName + prefix + 'WT1.nc_small')) # Wake behind turbine 1
+    ds22 = readDataSet(os.path.join(outDirHori, caseName + prefix + 'WT2.nc_small')) # Wake behind turbine 2
+
+    if removeBG=='0WT':
+        caseName0 = caseName.replace('2WT','0WT').replace('1WT','0WT')
+        if Meander:
+            superPrefix = caseName0+ '_IN'+ caseName
+        else:
+            superPrefix = caseName0
+        ds01 = readDataSet(os.path.join(outDirHori, superPrefix + prefix + 'WT1.nc_small')) # Wake behind turbine 1 - No turbine
+        ds02 = readDataSet(os.path.join(outDirHori, superPrefix + prefix + 'WT2.nc_small')) # Wake behind turbine 2 - No turbine
     else:
-        ds21= xarray.open_dataset(os.path.join(datapath2,'HubHeightWT1.nc_small')) # Wake behind turbine 1
-        ds22= xarray.open_dataset(os.path.join(datapath2,'HubHeightWT2.nc_small')) # Wake behind turbine 2
-        try:
-            ds01= xarray.open_dataset(os.path.join(datapath0,'HubHeightWT1.nc_small')) # Wake behind turbine 1 - No turbine
-            ds02= xarray.open_dataset(os.path.join(datapath0,'HubHeightWT2.nc_small')) # Wake behind turbine 2 - No turbine
-        except:
-            ds01=ds21.copy()
-            ds02=ds22.copy()
+        ds01=None
+        ds02=None
     ds = ds21
 
     # --- Intersection of time
@@ -62,8 +61,8 @@ def fitAvgProfiles(case, Meander=True, symmetric=False, removeBG='Outer', smooth
         ITime = common_itime(ds01, ds21, ds02, ds22)
     else:
         ITime = common_itime(ds21, ds22)
-    ITime = np.arange(501, ITime[-1])
-    print('ITime', ITime[0], ITime[-1])
+    ITime = ITime[ITime>iTimeMin]
+    print('ITimeSel', ITime[0], ITime[-1])
 
     # Storage
     KS = np.zeros((2, len(xPlanes), 2)) # iWT, xPlanes, (Kd, Kg)
@@ -92,10 +91,10 @@ def fitAvgProfiles(case, Meander=True, symmetric=False, removeBG='Outer', smooth
             axes[1,iP].text(1,1, fitter.coeffsToString(sep='\n'), ha='center', va='center')
 
         # Compute some kind of K factors based on first row
-        print('---- iP', iP)
+        #print('---- iP', iP)
         kd =         KS[1,iP,0]    
         kg =         KS[1,iP,1]    
-        print('kd={:.3f} kg={:.3f}'.format(kd, kg))
+        #print('kd={:.3f} kg={:.3f}'.format(kd, kg))
 #         kd = np.sqrt(KS[0,iP,0]**2 + KS[0,-1,0]**2)
 #         kg = np.sqrt(KS[0,iP,1]**2 + KS[0,-1,1]**2)
 #         print('kd={:.3f} kg={:.3f}'.format(kd, kg))
@@ -109,36 +108,34 @@ def fitAvgProfiles(case, Meander=True, symmetric=False, removeBG='Outer', smooth
     axes[1,0].set_ylabel('y/D [-]')
     figname = label
     fig.suptitle(figname)
-    fig.savefig(figsPath+figname+'.png')
+    fig.savefig(os.path.join(figDir,figname+'.png'))
 
 
     # --- Export
+    outFile = os.path.join(outDirFits, label+'.pkl')
+    print('Writting: ',outFile)
     pkl = PickleFile(data=KS)
-    pkl.write(outPath + label+'.pkl')
+    pkl.write(outFile)
 
 
 if __name__ == '__main__':
-    # --- Parameters 
-    cases=[]
-    cases+=['neutral']
-    cases+=['stable']
-    cases+=['unstable']
+    caseNames = [] 
+    caseNames += ['neutral2WT']
+#     caseNames += ['stable2WT'] 
+#     caseNames += ['unstable2WT'] 
+#     caseNames += ['neutral1WT']
+#     caseNames += ['stable1WT'] 
+#     caseNames += ['unstable1WT'] 
 
+    Cases = dict((k,v) for k,v in AllCases.items() if k in caseNames)
 
-    for smooth in [0,2,4]:
-    #     for Meander in [False]:
-        for Meander in [True, False]:
-            for symmetric in [True, False]:
-    #         for symmetric in [False]:
-            #for symmetric in [True]:
-                for case in cases:
-                    if case!='unstable':
-                        BG=['Outer','0WT']
-                    else:
-                        BG=['Outer']
-    #                 BG=['Outer']
+    BG=['Outer','0WT']
+
+    for caseName, Case in Cases.items():
+        for smooth in [0,2,4]:
+            for Meander in [True, False]:
+                for symmetric in [True, False]:
                     for bg in BG:
-                        fitAvgProfiles(case, Meander=Meander, symmetric=symmetric, removeBG=bg, smooth=smooth)
-
-
-#     plt.show()
+                        label = getLabel(caseName, Meander, symmetric, bg, smooth)
+                        with FailSafe(label, False):
+                            fitAvgProfiles(caseName, Case, Meander=Meander, symmetric=symmetric, removeBG=bg, smooth=smooth)

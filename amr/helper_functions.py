@@ -1,20 +1,28 @@
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 import xarray
+# External
+from windtools.amrwind.post_processing  import Sampling
+# Local
 from welib.tools.curve_fitting import model_fit
+from welib.essentials import *
 
 AllCases={}
-AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc'], 'path':'02-iea15-2WT/neutral/'}
-AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc'], 'path':'02-iea15-2WT/stable/'}
-AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'planeFileWT':['planesT176826.nc' ,'planesT276826.nc' ], 'path':'02-iea15-2WT/unstable'}
+AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'planeTimes':[129921], 'path':'02-iea15-2WT/neutral/'}
+AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'planeTimes':[121692], 'path':'02-iea15-2WT/stable/'}
+AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'planeTimes':[76826], 'path':'02-iea15-2WT/unstable'}
 
-AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc'], 'path':'02-iea15-1WT/neutral/'}
-AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc'], 'path':'02-iea15-1WT/stable/'}
-AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc'], 'path':'02-iea15-1WT/unstable/'}
+AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'planeTimes':[129921], 'path':'02-iea15-1WT/neutral/'}
+AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'planeTimes':[121692], 'path':'02-iea15-1WT/stable/'}
+AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'planeTimes':[121692], 'path':'02-iea15-1WT/unstable/'}
 
-AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'planeFileWT':['planesT1129921.nc','planesT2129921.nc'], 'path':'02-iea15-0WT/neutral/'}
-AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc'], 'path':'02-iea15-0WT/stable/'}
-AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'planeFileWT':['planesT1121692.nc','planesT2121692.nc'], 'path':'02-iea15-0WT/unstable/'}
+AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'planeTimes':[129921], 'path':'02-iea15-0WT/neutral/'}
+AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'planeTimes':[121692], 'path':'02-iea15-0WT/stable/'}
+AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'planeTimes':[121692], 'path':'02-iea15-0WT/unstable/'}
+
+
+
 
 def getSimParamsAMR(stability):
     dt=1
@@ -42,17 +50,75 @@ def getSimParamsAMR(stability):
 
 
 
+def readPlanes(outBase, ITimes, group, simCompleted=False, ):
+    DeltaI = np.diff(ITimes)
+
+    ncPaths = [outBase+'{}.nc'.format(itime) for itime in ITimes ] 
+    for ii, (itime, ncPath) in enumerate(zip(ITimes,ncPaths)):
+        if not os.path.exists(ncPath):
+            raise Exception('File not found '+ncPath)
+        print('Reading: ',ncPath)
+        sp = Sampling(ncPath)
+        ds0= sp.read_single_group(group, simCompleted=True).rename_dims({'samplingtimestep':'it'})
+        if ii==0:
+            ds=ds0
+        elif ii>0:
+            ds2 = ds.concat(ds0, join=right)
+            print('>>>> TODO Concat')
+            import pdb; pdb.set_trace()
+    return ds
+
+
+
+def readDataSet(filename):
+    if not os.path.exists(filename):
+        raise Exception('File not found:'+ filename)
+    print('Reading:', filename)
+    try:
+        return xarray.open_dataset(filename)
+    except Exception as e:
+        FAIL('Failed to read:'+ filename)
+        raise e
+
+def getLabel(caseName, Meander, symmetric, removeBG, smooth):
+    prefix = '_Meander_' if Meander else '_Inertial_'
+    label='KFit_'+caseName+prefix
+    if symmetric:
+        label+='_sym'
+    label+='_rm'+removeBG+'_smooth{:d}'.format(smooth)
+    return label
+
+class FailSafe(object):
+    """ Run a command """
+    def __init__(self, msg=None, raiseException=True):
+        self.msg = msg
+        self.raiseException = raiseException
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        if exc_type is not None:
+            # An exception occured
+            FAIL(self.msg+': ' + exc_val.__repr__())
+            return not self.raiseException
+        else:
+            OK(self.msg)
+            return True
+
+
+
 def FAIL(msg):
     HEADER = '\033[95m'
-    GREEN = '\033[92m'
-    WARNING = '\033[93m'
     RED = '\033[91m'
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    print(RED+'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'+ENDC)
     print(RED+'[FAIL] ' + msg + ENDC)
-    print(RED+'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'+ENDC)
+
+def WARN(msg):
+    ORAN = '\033[93m'
+    ENDC = '\033[0m'
+    print(ORAN+'[WARN] ' + msg + ENDC)
 
 def OK(msg):
     GREEN = '\033[92m'
@@ -328,7 +394,7 @@ def common_itime(*dss):
         ITime = ITime.intersection(ds.it.values)
     ITime = list(ITime)
     ITime.sort()
-    return ITime
+    return np.asarray(ITime)
 
 
 

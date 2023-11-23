@@ -5,9 +5,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import xarray
-# Local 
-from welib.essentials import *
+# Super Local 
 from helper_functions import *
 
 # --- Script parameters
@@ -17,35 +15,28 @@ def plotHH(caseName, Case, outDir='_out', figDir='_figs', Meander=False, tMin=50
     print(f'-----------------------------------------------------------------------')
 
     outDir = os.path.join(outDir, 'planes')
-    figDir = os.path.join(figDir, 'planes')
+    figDir = os.path.join(figDir, '_figs_planes')
     if not os.path.exists(figDir):
         os.makedirs(figDir)
 
 
     stability = Case['stability']
-    if Meander: 
-        prefix = 'Meander'
-    else:
-        prefix = 'HubHeight'
+    prefix = 'Meander_' if Meander else 'Inertial_'
 
     # --- Derived parameters
-    datapath = os.path.join(outDir, caseName)
-    figbase = os.path.join(figDir, prefix+'_'+caseName)
     U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(stability)
-    file1 = os.path.join(datapath, prefix+'WT1.nc_small')
-    file2 = os.path.join(datapath, prefix+'WT2.nc_small')
-    print('Reading:', file1)
-    ds1 = xarray.open_dataset(file1)
-    print('Reading:', file2)
-    ds2 = xarray.open_dataset(file2)
-    print('it',ds1.it.values[0],ds1.it.values[-1]  )
+    datapath = os.path.join(outDir, caseName)
+    figbase = os.path.join(figDir, prefix+caseName)
+    ds1 = readDataSet(os.path.join(datapath, prefix+'WT1.nc_small'))
+    ds2 = readDataSet(os.path.join(datapath, prefix+'WT2.nc_small'))
 
     y = ds1.y.values
     t = ds1.samplingtimestep.values * dt
     Itime = np.where(t>tMin)[0]
     t1=t[Itime[0]]
     t2=t[Itime[-1]]
-    print('t1,t2', t1,t2)
+    #print('it',ds1.it.values[0],ds1.it.values[-1]  )
+    #print('t1,t2', t1,t2)
 
 
     # --- Plot average wake deficit

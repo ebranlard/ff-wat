@@ -10,35 +10,34 @@ from welib.essentials import *
 from welib.tools.curve_fitting import model_fit
 from helper_functions import *
 
-outPath='_out_KFit/'
-figsPath = '_figs_KFit/'
 
 
 # ---- Read all
-def loadallKFits(Meander, syms, cases, rms, smooth=0):
+def loadallKFits(Meander, syms, Cases, rms, smooth=0, nWT=2, outDir='_out'):
+    outDirFits = os.path.join(outDir, 'kfit')
     D={}
-    for case in cases:
-        for symmetric in syms:
-            for removeBG in rms:
-                if Meander: 
-                    label='KFit_Meander_'+case
-                else:
-                    label='KFit_Inertial_'+case
-                if symmetric:
-                    label+='_sym'
-                label+='_rm'+removeBG+'_smooth{:d}'.format(smooth)
-
-                filename = outPath+label+'.pkl'
-                try:
-                    pkl = PickleFile(filename)
-                    D[label] = pkl['data']
-                except:
-                    print('>>> Missing', filename)
+    for caseName, Case in Cases.items():
+        if Case['nWT']!=nWT:
+            pass
+            #print('>>> Skipping case with nWT/={}'.format(nWT))
+        else:
+            for symmetric in syms:
+                for removeBG in rms:
+                    label = getLabel(caseName, Meander, symmetric, removeBG, smooth)
+                    filename = os.path.join(outDirFits, label+'.pkl')
+                    try:
+                        pkl = PickleFile(filename)
+                        D[label] = pkl['data']
+                    except:
+                        WARN('Missing: '+ filename)
     return D
 
-def plotKFits(Meander, D, smooth=0):
-    for k,v in D.items():
-        print('Key: ', k)
+def plotKFits(Meander, D, smooth=0, nWT=2, figDir='_figs'):
+    figDir = os.path.join(figDir, '_figs_kfit_summary')
+    if not os.path.exists(figDir):
+        os.makedirs(figDir)
+    #for k,v in D.items():
+    #    print('Key: ', k)
     xPlanes=np.arange(7)
     colrsNeut = color_scales(n=7, color='blue' )
     colrsStab = color_scales(n=7, color='green' )
@@ -72,6 +71,7 @@ def plotKFits(Meander, D, smooth=0):
             axes[iRow,1].set_xlabel('')
             axes[iRow,1].set_ylabel('Kgrad')
 
+
     if Meander:
         prefix='KFit_Meander_'
         sufix='Meander_'
@@ -100,27 +100,38 @@ def plotKFits(Meander, D, smooth=0):
     axes[0,0].legend(fontsize=9, ncol=2, loc='upper left')
 
 
-    figname = 'Summary_Downstream_'+sufix+'_smooth'+str(smooth)
+    figname = 'nWT{}_'.format(nWT)+sufix+'_smooth'+str(smooth)
     fig.suptitle(figname)
-    fig.savefig(figsPath+figname+'.png')
+    fig.savefig(os.path.join(figDir,figname+'.png'))
 
 
 
 
 if __name__ == '__main__':
+    outDir = '_out_all'
+    figDir = '_out_all'
     syms = [True, False]
-    cases=['neutral', 'stable','unstable']
     rms =['0WT', 'Outer']
-    cases=['neutral']
-    rms =['0WT']
+#     rms =['0WT']
 
-    smooth=0
+    caseNames = [] 
+    caseNames += ['neutral2WT']
+    caseNames += ['stable2WT'] 
+    caseNames += ['unstable2WT'] 
+#     caseNames += ['neutral1WT']
+#     caseNames += ['stable1WT'] 
+#     caseNames += ['unstable1WT'] 
 
-    D = loadallKFits(False, syms, cases, rms, smooth=smooth)
-    plotKFits(False, D, smooth=smooth)
+    Cases = dict((k,v) for k,v in AllCases.items() if k in caseNames)
 
-#     D = loadallKFits(True, syms, cases, rms, smooth=smooth)
-#     plotKFits(True, D, smooth=smooth)
+    Meander=False
+    Meander=True
+
+    for smooth in [0,2,4]:
+        for nWT in [2]:
+            D = loadallKFits(Meander, syms, Cases, rms, smooth=smooth, nWT=nWT, outDir=outDir)
+            plotKFits(Meander, D, smooth=smooth, nWT=nWT, figDir=figDir)
+
 
     plt.show()
 

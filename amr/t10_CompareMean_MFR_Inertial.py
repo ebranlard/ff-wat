@@ -5,60 +5,52 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import xarray
 # Local 
-import weio
-from welib.essentials import *
 from helper_functions import *
 import warnings
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
-# --- Script parameters
-figsPath='_figs_MFR_vs_Interial/'
 
-# for nWT in [0,2]:
-# for case in ['neutral']:
-# for case in ['neutral']:
-# for case in ['stable']:
-# for case in ['unstable']:
-for case in ['neutral','stable','unstable']:
+def plotMFRInertialComp(caseName, Case, outDir='_out', figDir='_fig', iTimeMin=500):
+    print(f'-----------------------------------------------------------------------')
+    print(f'--- plotMFRInertialComp - Case: {caseName}')
+    print(f'-----------------------------------------------------------------------')
+    if Case['nWT']==0:
+        WARN('Skipping case (script only makes sense for one or two WT)')
+        return
 
-    U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(case)
+    outDirHori = os.path.join(outDir  , 'lines')
+    figDirComp  = os.path.join(figDir, '_figs_compMFR')
+    if not os.path.exists(outDirHori):
+        os.makedirs(outDirHori)
+    if not os.path.exists(figDirComp):
+        os.makedirs(figDirComp)
+
+    U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(Case['stability'])
     # --- Derived parameters
-    datapath = os.path.join('02-iea15-{}WT/'.format(2), case, 'processedData')
-    figbase = 'MFR_vs_Inertial_Hori_{}'.format(case)
+    figbase = '{}_MFR_vs_Inertial_Hori_'.format(caseName)
 
-    ds1MFR = xarray.open_dataset(os.path.join(datapath,'MeanderWT1.nc_small'))
-    ds2MFR = xarray.open_dataset(os.path.join(datapath,'MeanderWT2.nc_small'))
-    ds1Ine = xarray.open_dataset(os.path.join(datapath,'HubHeightWT1.nc_small'))
-    ds2Ine = xarray.open_dataset(os.path.join(datapath,'HubHeightWT2.nc_small'))
-    datapath = os.path.join('02-iea15-{}WT/'.format(0), case, 'processedData')
-    if case !='unstable':
-        ds3MFR = xarray.open_dataset(os.path.join(datapath,'MeanderWT1.nc_small'))
-        ds4MFR = xarray.open_dataset(os.path.join(datapath,'MeanderWT2.nc_small'))
-        ds3Ine = xarray.open_dataset(os.path.join(datapath,'HubHeightWT1.nc_small'))
-        ds4Ine = xarray.open_dataset(os.path.join(datapath,'HubHeightWT2.nc_small'))
-    else:
-        ds3MFR = ds1MFR.copy()
-        ds4MFR = ds1MFR.copy()
-        ds3Ine = ds1MFR.copy()
-        ds4Ine = ds1MFR.copy()
-        ds3MFR['u'] *= 0
-        ds4MFR['u'] *= 0
-        ds3Ine['u'] *= 0
-        ds4Ine['u'] *= 0
+    ds1MFR = readDataSet(os.path.join(outDirHori,caseName+'_Meander_WT1.nc_small'))
+    ds2MFR = readDataSet(os.path.join(outDirHori,caseName+'_Meander_WT2.nc_small'))
+    ds1Ine = readDataSet(os.path.join(outDirHori,caseName+'_Inertial_WT1.nc_small'))
+    ds2Ine = readDataSet(os.path.join(outDirHori,caseName+'_Inertial_WT2.nc_small'))
+    #  OWT case
+    caseName0 = caseName.replace('2WT','0WT').replace('1WT','0WT')
+    ds3MFR = readDataSet(os.path.join(outDirHori, caseName0 + '_IN'+ caseName + '_Meander_WT1.nc_small'))
+    ds4MFR = readDataSet(os.path.join(outDirHori, caseName0 + '_IN'+ caseName + '_Meander_WT2.nc_small'))
+    ds3Ine = readDataSet(os.path.join(outDirHori, caseName0 + '_Inertial_WT1.nc_small'))
+    ds4Ine = readDataSet(os.path.join(outDirHori, caseName0 + '_Inertial_WT2.nc_small'))
     print('it',ds1MFR.it.values[0],ds1MFR.it.values[-1]  )
 
     y = ds1MFR.y.values
     t = ds1MFR.it.values * dt
     ITime = common_itime(ds1MFR,)
     print('ITime 2WT',ITime[0], ITime[-1])
-    if case !='unstable':
-        ITime = common_itime(ds3MFR,)
-        print('ITime 0WT',ITime[0], ITime[-1])
-        ITime = common_itime(ds1MFR, ds3MFR)
-        print('ITime com',ITime[0], ITime[-1])
-    ITime = np.arange(501, ITime[-1])
+    ITime = common_itime(ds3MFR,)
+    print('ITime 0WT',ITime[0], ITime[-1])
+    ITime = common_itime(ds1MFR, ds3MFR)
+    print('ITime com',ITime[0], ITime[-1])
+    ITime = np.arange(iTimeMin, ITime[-1])
     print('ITime com',ITime[0], ITime[-1])
 
 
@@ -113,38 +105,55 @@ for case in ['neutral','stable','unstable']:
         ax.set_xlim([2,10])
     figname = figbase+ '__U'
     fig.suptitle(figname)
-    fig.savefig(figsPath+figname+'.png')
+    fig.savefig(os.path.join(figDirComp,figname+'.png'))
 
 
     # --- Plot var at hub height as function of time
     ysym=False
-    removeBG='Zero'
+    for removeBG in ['Zero','Outer']:
+#     removeBG='Zero'
 #     removeBG='Outer'
-    fig,axes = plt.subplots(2, len(xPlanes), sharey=True, figsize=(12.8,8.8)) # (6.4,4.8)
-    fig.subplots_adjust(left=0.07, right=0.98, top=0.91, bottom=0.07, hspace=0.15, wspace=0.20)
-    for iP, x in enumerate(xPlanes):
+        fig,axes = plt.subplots(2, len(xPlanes), sharey=True, figsize=(12.8,8.8)) # (6.4,4.8)
+        fig.subplots_adjust(left=0.07, right=0.98, top=0.91, bottom=0.07, hspace=0.15, wspace=0.20)
+        for iP, x in enumerate(xPlanes):
 
-        axes[0,iP].set_title('x= {}D'.format(int(x)))
-        axes[0,iP].plot(np.sqrt(compute_var(ds1MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[0], lw=2.0,            label='MFR')
-        axes[0,iP].plot(np.sqrt(compute_var(ds1Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[1], lw=2.0,            label='Inertial')
-        axes[0,iP].plot(np.sqrt(compute_var(ds3MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[2], lw=1.0, ls='--',   label='BG MFR')
-        axes[0,iP].plot(np.sqrt(compute_var(ds3Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[3], lw=1.0, ls='--',   label='BG Inertial')
-        axes[1,iP].plot(np.sqrt(compute_var(ds2MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[0], lw=2.0,            label='MFR')
-        axes[1,iP].plot(np.sqrt(compute_var(ds2Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[1], lw=2.0,            label='Inertial')
-        axes[1,iP].plot(np.sqrt(compute_var(ds4MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[2], lw=1.0, ls='--',   label='BG MFR')
-        axes[1,iP].plot(np.sqrt(compute_var(ds4Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[3], lw=1.0, ls='--',   label='BG Inertial')
-        axes[1,iP].set_xlabel('y/D [-]')
-        if iP==0:
-            axes[0,0].legend(fontsize=8, ncol=2, loc='upper center')
+            axes[0,iP].set_title('x= {}D'.format(int(x)))
+            axes[0,iP].plot(np.sqrt(compute_var(ds1MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[0], lw=2.0,            label='MFR')
+            axes[0,iP].plot(np.sqrt(compute_var(ds1Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[1], lw=2.0,            label='Inertial')
+            axes[0,iP].plot(np.sqrt(compute_var(ds3MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[2], lw=1.0, ls='--',   label='BG MFR')
+            axes[0,iP].plot(np.sqrt(compute_var(ds3Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[3], lw=1.0, ls='--',   label='BG Inertial')
+            axes[1,iP].plot(np.sqrt(compute_var(ds2MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[0], lw=2.0,            label='MFR')
+            axes[1,iP].plot(np.sqrt(compute_var(ds2Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[1], lw=2.0,            label='Inertial')
+            axes[1,iP].plot(np.sqrt(compute_var(ds4MFR, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[2], lw=1.0, ls='--',   label='BG MFR')
+            axes[1,iP].plot(np.sqrt(compute_var(ds4Ine, iP, ITime, D=D, removeBG=removeBG, ysym=ysym)), y/D, c=Colrs[3], lw=1.0, ls='--',   label='BG Inertial')
+            axes[1,iP].set_xlabel('y/D [-]')
+            if iP==0:
+                axes[0,0].legend(fontsize=8, ncol=2, loc='upper center')
 
-    for ax in np.array(axes).flatten():
-        ax.tick_params(direction='in', top=True, right=True, labelright=False, labeltop=False, which='both')
-        ax.set_xlim([0,2.0])
+        for ax in np.array(axes).flatten():
+            ax.tick_params(direction='in', top=True, right=True, labelright=False, labeltop=False, which='both')
+            ax.set_xlim([0,2.0])
 
-    axes[0,0].set_ylabel(r'$\sigma$'+'\n horizontal plane [m/s]')
-    axes[1,0].set_ylabel(r'$\sigma$'+'\n horizontal plane [m/s]')
-    figname = figbase+ '__Sigma_'+removeBG
-    fig.suptitle(figname)
-    fig.savefig(figsPath+figname+'.png')
+        axes[0,0].set_ylabel(r'$\sigma$'+'\n horizontal plane [m/s]')
+        axes[1,0].set_ylabel(r'$\sigma$'+'\n horizontal plane [m/s]')
+        figname = figbase+ '__Sigma_'+removeBG
+        fig.suptitle(figname)
+        fig.savefig(os.path.join(figDirComp,figname+'.png'))
 
-plt.show()
+
+if __name__ == '__main__':
+    caseNames = [] 
+    caseNames += ['neutral2WT']
+    caseNames += ['stable2WT'] 
+    caseNames += ['unstable2WT'] 
+#     caseNames += ['neutral1WT']
+#     caseNames += ['stable1WT'] 
+#     caseNames += ['unstable1WT'] 
+
+    Cases = dict((k,v) for k,v in AllCases.items() if k in caseNames)
+
+    for caseName, Case in Cases.items():
+        with FailSafe(caseName, False):
+            plotMFRInertialComp(caseName, Case, outDir='_out')
+
+    plt.show()

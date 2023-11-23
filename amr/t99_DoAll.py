@@ -1,35 +1,105 @@
 from helper_functions import *
 
-from t00_PostPro_SaveHoriPlanes import saveHubHeightPlanes
+# Postpro
+from t00_PostPro_SaveHoriPlanes import saveHubHeightLines
+from t07_FindWakeCenters import findWakeCenters
+from t08_CleanTrajectories import cleanTrajectory
+from t09_PostProMeanderingFrame import saveMeanderingFrameLines
+from t11_FitAvg_MFR import fitAvgProfiles
+# Plot
 from t01_Plot_HH import plotHH
+from t02_Compare_Free_Waked import plotCompareFreeWake
+from t10_CompareMean_MFR_Inertial import plotMFRInertialComp
+from t12_PlotK import loadallKFits, plotKFits  
 
 
 if __name__ == '__main__':
+    # --- Parameters
+    outDir = '_out_all'
+    figDir = '_out_all'
+    iTimeMin = 500
+    raiseException=False
 
-    caseNames = AllCases.keys()
-#     caseNames += ['neutral2WT']
-#     caseNames += ['stable2WT'] 
-#     caseNames += ['neutral0WT']
-#     caseNames += ['stable0WT'] 
-#     caseNames += ['unstable2WT'] 
-# #     caseNames += ['unstable0WT'] 
-# 
-#     Cases = dict((k,v) for k,v in AllCases.items() if k in caseNames)
-#     print(Cases)
+    # --- Select case names
+    caseNames =[]
+#     caseNames += list(AllCases.keys())
+    caseNames += ['neutral2WT']
+    caseNames += ['stable2WT'] 
+    caseNames += ['unstable2WT'] 
+    caseNames += ['neutral0WT']
+    caseNames += ['stable0WT'] 
+    caseNames += ['unstable0WT'] 
+#     caseNames += ['neutral1WT']
+#     caseNames += ['stable1WT'] 
+#     caseNames += ['unstable1WT'] 
 
-    # --- Step 1 - Save planes at hubheight 
-#     for caseName, Case in AllCases.items():
-#         try:
-#             saveHubHeightPlanes(caseName, Case)
-#             OK(caseName)
-#         except:
-#             FAIL(caseName)
+    # --- Cases and stability from caseNames
+    Cases = dict((k,v) for k,v in AllCases.items() if k in caseNames)
+    stabilities = np.unique([Case['stability'] for _,Case in Cases.items()])
+    nWTs = np.unique([Case['nWT'] for _,Case in Cases.items() if Case['nWT']>0])
+
+    # --- Step 1 - Save planes at hubheight in inertial frame
+    for caseName, Case in Cases.items():
+        with FailSafe(caseName, raiseException=raiseException):
+            saveHubHeightLines(caseName, Case, outDir=outDir)
+
+    # --- Step 2 - Find wake centers and clean trajectories (NOTE: only for simulations with 1 or 2 turbines)
+    for caseName, Case in Cases.items():
+        with FailSafe(caseName, raiseException=raiseException):
+            findWakeCenters(caseName, Case, plot=False, outDir=outDir, iTimeMin=iTimeMin)
+
+    # --- Step 3 - Clean trajectories
+    for caseName, Case in Cases.items():
+        with FailSafe(caseName, raiseException=raiseException):
+            cleanTrajectory(caseName, Case, plot=True, outDir=outDir, figDir=figDir)
+
+    # --- Step 4 - Save in meandering frame
+    for caseName, Case in Cases.items():
+        with FailSafe(caseName, raiseException=raiseException):
+            saveMeanderingFrameLines(caseName, Case, plot=True, nFigsMax=10, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+
+    # --- Step 5 - Fit K profile 
+    BG=['Outer','0WT']
+    for caseName, Case in Cases.items():
+        for smooth in [0,2,4]:
+            for Meander in [True, False]:
+                for symmetric in [True, False]:
+                    for bg in BG:
+                        label = getLabel(caseName, Meander, symmetric, bg, smooth)
+                        with FailSafe(label, False):
+                            fitAvgProfiles(caseName, Case, Meander=Meander, symmetric=symmetric, removeBG=bg, smooth=smooth, outDir=outDir, figDir=figDir)
 
 
-#     # --- Step  - Plot Mean deficit at hubheight and time series at hub height
-#     for caseName, Case in AllCases.items():
-#         try:
-#             plotHH(caseName, Case, Meander=False)
-#             OK(caseName)
-#         except:
-#             FAIL(caseName)
+
+    # --------------------------------------------------------------------------------}
+    # --- Plots 
+    # --------------------------------------------------------------------------------{
+    # --- Plot Mean deficit at hubheight and time series at hub height
+    for caseName, Case in AllCases.items():
+        with FailSafe(caseName, raiseException=raiseException):
+            plotHH(caseName, Case, Meander=False, outDir=outDir, figDir=figDir)
+    # --- Compare 0WT and 2WT - Inertial
+    for stability in stabilities:
+        with FailSafe(stability, raiseException=raiseException):
+            plotCompareFreeWake(stability, Meander=False, outDir=outDir, figDir=figDir)
+
+    # --- Compare Inertial MFR
+    for caseName, Case in AllCases.items():
+        with FailSafe(caseName, raiseException=raiseException):
+            plotMFRInertialComp(caseName, Case, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+
+
+    # --- Plot K Fits with downstream distance
+    syms = [True, False]
+    rms =['0WT', 'Outer']
+    Meander=False
+    Meander=True
+
+    for nWT in nWTs:
+        for Meander in [True, False]:
+            for smooth in [0,2,4]:
+                with FailSafe('PlotKFit Meander{} nWT{} Smooth{}'.format(Meander, nWT, smooth), raiseException=raiseException):
+                    D = loadallKFits(Meander, syms, Cases, rms, smooth=smooth, nWT=nWT, outDir=outDir)
+                    plotKFits(Meander, D, smooth=smooth, nWT=nWT, figDir=figDir)
+
+

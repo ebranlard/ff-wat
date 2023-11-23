@@ -5,37 +5,39 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import xarray
-# Local 
-import weio
-from welib.essentials import *
-from welib.tools.colors import *
+# Super local 
 from helper_functions import *
 
-IPlot = [  ]
-# IPlot += [ 0] # Velocity at Point
-# IPlot += [ 1] # Mean velocity
-# IPlot += [ 2] # TKE
-IPlot += [ 3] # Var
-# IPlot += [ 4] # k^2 / Var
-
 # --- Parameters 
+def plotCompareFreeWake(stability, outDir='_out', figDir='_figs', Meander=False, IPlot=None, iTimeMin=500):
+    print(f'-----------------------------------------------------------------------')
+    print(f'--- plotCompareFreeWake - Case: {stability}')
+    print(f'-----------------------------------------------------------------------')
+    outDir = os.path.join(outDir, 'planes')
+    figDir = os.path.join(figDir, '_figs_comp02')
+    if not os.path.exists(figDir):
+        os.makedirs(figDir)
 
+    if IPlot is None:
+        IPlot = [0,1,2,3,4]
 
+    prefix = 'Meander_' if Meander else 'Inertial_'
 
     # --- Derived parameters
-    U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(case)
-    figbase = figDir+'{}_02WT_'.format(case)
-    datapath0 = os.path.join('03-iea15-0WT/', case, 'processedData')
-    datapath2 = os.path.join('02-iea15-2WT/', case, 'processedData')
-
-    ds01= xarray.open_dataset(os.path.join(datapath0,'HubHeightWT1.nc'))
-    ds21= xarray.open_dataset(os.path.join(datapath2,'HubHeightWT1.nc'))
-    ds02= xarray.open_dataset(os.path.join(datapath0,'HubHeightWT2.nc'))
-    ds22= xarray.open_dataset(os.path.join(datapath2,'HubHeightWT2.nc'))
+    U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(stability)
+    datapath0 = os.path.join(outDir, stability+'0WT')
+    datapath2 = os.path.join(outDir, stability+'2WT')
+    figbase = os.path.join(figDir, prefix)
+    ds01= readDataSet(os.path.join(datapath0, prefix+'WT1.nc_small'))
+    ds21= readDataSet(os.path.join(datapath2, prefix+'WT1.nc_small'))
+    ds02= readDataSet(os.path.join(datapath0, prefix+'WT2.nc_small'))
+    ds22= readDataSet(os.path.join(datapath2, prefix+'WT2.nc_small'))
 
     # --- Intersection of time
-    ITime = common_itime(ds01, ds21)
+    ITime = np.array(common_itime(ds01, ds21))
+    ITime = ITime[ITime>iTimeMin]
+    it_min, it_max = ITime[0], ITime[-1]
+    print('ITimeSel', ITime[0], ITime[-1])
 
     y = ds01.y.values
     iy0 = np.argmin(np.abs(y-0    ))
@@ -239,4 +241,14 @@ IPlot += [ 3] # Var
 
 # import pdb; pdb.set_trace()
 
-plt.show()
+if __name__ == '__main__':
+    IPlot = [  ]
+    # IPlot += [ 0] # Velocity at Point
+    # IPlot += [ 1] # Mean velocity
+    # IPlot += [ 2] # TKE
+    IPlot += [ 3] # Var
+    # IPlot += [ 4] # k^2 / Var
+
+    
+    plotCompareFreeWake('neutral', Meander=False, IPlot=None)
+    plt.show()
