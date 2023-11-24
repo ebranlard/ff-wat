@@ -33,9 +33,10 @@ def loadallKFits(Meander, syms, Cases, rms, smooth=0, nWT=2, outDir='_out'):
     return D
 
 def plotKFits(Meander, D, smooth=0, nWT=2, figDir='_figs'):
-    figDir = os.path.join(figDir, '_figs_kfit_summary')
-    if not os.path.exists(figDir):
-        os.makedirs(figDir)
+    if figDir is not None:
+        figDir = os.path.join(figDir, '_figs_kfit_summary')
+        if not os.path.exists(figDir):
+            os.makedirs(figDir)
     #for k,v in D.items():
     #    print('Key: ', k)
     xPlanes=np.arange(7)
@@ -102,7 +103,8 @@ def plotKFits(Meander, D, smooth=0, nWT=2, figDir='_figs'):
 
     figname = 'nWT{}_'.format(nWT)+sufix+'_smooth'+str(smooth)
     fig.suptitle(figname)
-    fig.savefig(os.path.join(figDir,figname+'.png'))
+    if figDir is not None:
+        fig.savefig(os.path.join(figDir,figname+'.png'))
 
 
 

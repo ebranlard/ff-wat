@@ -49,8 +49,23 @@ def getSimParamsAMR(stability):
     return U0, dt, D, xyWT, HubHeight, xPlanes
 
 
+def eddyFilter(x_plane, Dmin, Dmax, Fmin, Exp):
+    """ NOTE: x is x/D [-] """
+    F = np.zeros_like(x_plane).astype(float)
+    bLow = x_plane<= Dmin
+    bHigh = x_plane >= Dmax
+    F[bLow] = Fmin
+    F[bHigh] = 1 
+    b =  ~(np.logical_or(bLow, bHigh))
+    F[b] =  Fmin + (1-Fmin)*( ( (x_plane[b]) - Dmin ) / (Dmax-Dmin) )**Exp
+    return F
 
-def readPlanes(outBase, ITimes, group, simCompleted=False, ):
+eddyFilter_Amb = {'Dmin':0, 'Dmax':1 , 'Fmin':1  , 'Exp':0.01}
+eddyFilter_Shr = {'Dmin':3, 'Dmax':25, 'Fmin':0.2, 'Exp':0.1}
+
+
+
+def readPlanes(outBase, ITimes, group, simCompleted=False):
     DeltaI = np.diff(ITimes)
 
     ncPaths = [outBase+'{}.nc'.format(itime) for itime in ITimes ] 
@@ -261,6 +276,9 @@ def ds_fitK(ds, iP, ITime, D, U0, symmetric=True, removeBG='None', ds0=None, smo
     else:
         u_smoothed   = savgol_filter(u,   window_length=smooth*2, polyorder=1)
         var_smoothed = savgol_filter(var, window_length=smooth*2, polyorder=1)
+        smoothLength = y[0:smooth*2]
+        smoothLength = smoothLength[-1]-smoothLength[0]
+        print('>>> Smooth Length', smoothLength, smoothLength/D)
 #         fig=plt.figure()
 #         plt.plot(u,            y, label='Original')
 #         plt.plot(u_smoothed  , y, label='Smoothed')

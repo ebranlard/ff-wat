@@ -11,7 +11,7 @@ import welib.weio as weio
 from helper_functions import *
 
 # --- Loop on all cases
-def saveMeanderingFrameLines(caseName, Case, plot=False, nFigsMax=3, outDir='_out', figDir='_fig', iTimeMin=500):
+def saveMeanderingFrameLines(caseName, Case, plot=False, nFigsMax=3, outDir='_out', figDir='_fig', iTimeMin=500, returnFig=False):
     print(f'-----------------------------------------------------------------------')
     print(f'--- saveMeanderingFrameLines - Case: {caseName}')
     print(f'-----------------------------------------------------------------------')
@@ -28,25 +28,27 @@ def saveMeanderingFrameLines(caseName, Case, plot=False, nFigsMax=3, outDir='_ou
     if nWT in [1,2]:
         caseNameForTraj = caseName
         for iWT in [1, 2]:
-            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+            fig = saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin, returnFig=returnFig)
+            if returnFig:
+                return fig
     else:
         # Using meandering frame from 2 WT case
         caseNameForTraj = caseName.replace('0WT','2WT')
         print('>>> Case 0WT using trajectories from:', caseNameForTraj)
         for iWT in [1, 2]:
-            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin, returnFig=returnFig)
         # Using meandering frame from 1 WT case
         caseNameForTraj = caseName.replace('0WT','1WT')
         print('>>> Case 0WT using trajectories from:', caseNameForTraj)
         for iWT in [1, 2]:
-            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin)
+            saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=plot, nFigsMax=nFigsMax, outDir=outDir, figDir=figDir, iTimeMin=iTimeMin, returnFig=returnFig)
 
-def saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=False, nFigsMax=3, outDir='_out', figDir='_fig', iTimeMin=500):
+def saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=False, nFigsMax=3, outDir='_out', figDir='_fig', iTimeMin=500, returnFig=False):
     U0, dt, D, xyWT, HubHeight, xPlanes = getSimParamsAMR(Case['stability'])
     nWT  = Case['nWT']
     outDirHori = os.path.join(outDir  , 'lines')
     outDirTraj   = os.path.join(outDir, 'trajectories')
-    figDirTrack  = os.path.join(figDir, 'tracking')
+    figDirTrack  = os.path.join(figDir, '_figs_tracking')
 
     # --- Reading trajectories
     trajFile = os.path.join(outDirTraj, '{}_MeanderWT{:d}_TrajectoriesM.csv'.format(caseNameForTraj, iWT))
@@ -204,6 +206,8 @@ def saveMeanderingFrameLines2(iWT, caseNameForTraj, caseName, Case, plot=False, 
                         ax.tick_params(direction='in', top=True, right=True, labelright=False, labeltop=False, which='both')
                     fig.suptitle(figname)
                     fig.savefig(os.path.join(figDirTrack,figname+'.png'))
+                    if returnFig:
+                        return fig
                     plt.close(fig)
                     # --- End of Plot
                     
