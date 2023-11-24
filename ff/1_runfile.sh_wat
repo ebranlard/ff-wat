@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=more
+#SBATCH --job-name=wat
 #SBATCH --nodes=1
 #SBATCH --time=0-36
 #SBATCH --account=isda
@@ -11,7 +11,7 @@ echo "# Job name:" $SLURM_JOB_NAME
 echo "# Job ID: " $SLURM_JOBID
 echo "# Starting job at: " $(date)
 
-export OMP_NUM_THREADS=54
+export OMP_NUM_THREADS=52
 
 export OMP_PROC_BIND=spread
 export KMP_AFFINITY=balanced
@@ -25,11 +25,11 @@ source /home/ebranlar/_env/ebra-intel.sh
 echo "# Binary: " $ffbin
 
 cd neutral
-$ffbin FF-WAT-More.fstf 2>&1  &
+$ffbin FF-WAT.fstf 2>&1  &
 cd ..
 
 cd stable
-$ffbin FF-WAT-More.fstf 2>&1  &
+$ffbin FF-WAT.fstf 2>&1  &
 cd ..
 
 wait
