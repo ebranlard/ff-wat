@@ -20,16 +20,25 @@ setFigureFont(13)
 # --- Parameters
 stabilities=['stable','neutral']
 outFileBase = '_data/LES-FF'
-colKeep= ['Time_[s]','RootMyc1_[kN-m]','TwrBsMyt_[kN-m]','TwrBsMxt_[kN-m]']
+figDir      = '_data/_figs_LES-FF'
+colKeep= ['Time_[s]','RootMyb1_[kN-m]','RootMxb1_[kN-m]','RootMxc1_[kN-m]','RootMyc1_[kN-m]','TwrBsMyt_[kN-m]','TwrBsMxt_[kN-m]']
+# postPro=True
 postPro=False
-analyse=False
+# plot=False
 plot=True
 
 tMin = 500
 tMax = 1677 # TODO
 
+# --- Derived params
+if not os.path.exists(figDir):
+    os.makedirs(figDir)
+if not os.path.exists(os.path.dirname(outFileBase)):
+    os.makedirs(os.path.dirname(outFileBase))
 
+# --------------------------------------------------------------------------------}
 # --- PostPro
+# --------------------------------------------------------------------------------{
 if postPro:
     def readsafe(filename):
         print('Reading ', filename)
@@ -37,6 +46,19 @@ if postPro:
             df = weio.read(filename).toDataFrame()
             try:
                 df=df[colKeep]
+                dt = np.around(df['Time_[s]'].values[1]- df['Time_[s]'].values[0],4)
+                if dt==0.005:
+                    df = df.iloc[::4,:]
+                elif dt==0.02:
+                    df = df
+                else:
+                    FAIL('>>>>> NOT IMPLEMENTED'+ dt)
+                    import pdb; pdb.set_trace()
+                # 
+                dt = np.around(df['Time_[s]'].values[1]- df['Time_[s]'].values[0],4)
+                if dt!=0.02:
+                    FAIL('Wrong dt')
+                    import pdb; pdb.set_trace()
                 OK(filename)
                 return df
             except:
@@ -58,13 +80,14 @@ if postPro:
         # ff/stable/FF-WAT-More.T1.outb
         dfs[stab+'_NoWAT_T1'] = readsafe(os.path.join('ff',stab, 'FF-NoWAT.T1.outb'))
         dfs[stab+'_NoWAT_T2'] = readsafe(os.path.join('ff',stab, 'FF-NoWAT.T2.outb'))
-        dfs[stab+'_WAT_T1'] = readsafe(os.path.join('ff',stab, 'FF-WAT-More.T1.outb'))
-        dfs[stab+'_WAT_T2'] = readsafe(os.path.join('ff',stab, 'FF-WAT-More.T2.outb'))
+        dfs[stab+'_WAT05_T1'] = readsafe(os.path.join('ff',stab, '_KEEP_ME', 'FF-WAT05.T1.outb'))
+        dfs[stab+'_WAT05_T2'] = readsafe(os.path.join('ff',stab, '_KEEP_ME', 'FF-WAT05.T2.outb'))
+        dfs[stab+'_WAT15_T1'] = readsafe(os.path.join('ff',stab, '_KEEP_ME', 'FF-WAT15.T1.outb'))
+        dfs[stab+'_WAT15_T2'] = readsafe(os.path.join('ff',stab, '_KEEP_ME', 'FF-WAT15.T2.outb'))
 
     pkl = PickleFile(data=dfs)
     pkl.write(outFileBase+'.pkl')
 
-if analyse:
     # --- Analyses
     pkl = PickleFile(outFileBase+'.pkl')
     print(pkl)
@@ -72,37 +95,47 @@ if analyse:
     # Restrict time
     for k,df in pkl.items():
         print('Time Range: ', df['Time_[s]'].min(),  df['Time_[s]'].max(), k)
-        df = df[df['Time_[s]']>600]
-        df = df[df['Time_[s]']<1800]
+        df = df[df['Time_[s]']>tMin]
+        df = df[df['Time_[s]']<tMax]
         pkl[k] = df
 
     # --- LEq / Sig
     Sig={}
     Leq={}
     for k,df in pkl.items():
-        LeqBMy = equivalent_load(df['Time_[s]'].values, df['RootMyc1_[kN-m]'].values, m=10)
-        LeqTMx = equivalent_load(df['Time_[s]'].values, df['TwrBsMxt_[kN-m]'].values, m=4)
-        LeqTMy = equivalent_load(df['Time_[s]'].values, df['TwrBsMyt_[kN-m]'].values, m=4)
-        sigBMy = df['RootMyc1_[kN-m]'].std()
-        sigTMx = df['TwrBsMxt_[kN-m]'].std()
-        sigTMy = df['TwrBsMyt_[kN-m]'].std()
-        Leq[k] = {'BMy':LeqBMy, 'TMy':LeqTMy, 'TMx':LeqTMx}
-        Sig[k] = {'BMy':sigBMy, 'TMy':sigTMy, 'TMx':sigTMx}
-        print(Leq[k])
+        method ='fatpack'
+        LeqBMxb = np.around(equivalent_load(df['Time_[s]'].values, df['RootMxb1_[kN-m]'].values, m=10, method=method),1)
+        LeqBMyb = np.around(equivalent_load(df['Time_[s]'].values, df['RootMyb1_[kN-m]'].values, m=10, method=method),1)
+        LeqBMx = np.around(equivalent_load(df['Time_[s]'].values, df['RootMxc1_[kN-m]'].values, m=10, method=method),1)
+        LeqBMy = np.around(equivalent_load(df['Time_[s]'].values, df['RootMyc1_[kN-m]'].values, m=10, method=method),1)
+        LeqTMx = np.around(equivalent_load(df['Time_[s]'].values, df['TwrBsMxt_[kN-m]'].values, m=4 , method=method),1)
+        LeqTMy = np.around(equivalent_load(df['Time_[s]'].values, df['TwrBsMyt_[kN-m]'].values, m=4 , method=method),1)
+        sigBMxb= np.around(df['RootMxb1_[kN-m]'].std(),1)
+        sigBMyb= np.around(df['RootMyb1_[kN-m]'].std(),1)
+        sigBMx = np.around(df['RootMxc1_[kN-m]'].std(),1)
+        sigBMy = np.around(df['RootMyc1_[kN-m]'].std(),1)
+        sigTMx = np.around(df['TwrBsMxt_[kN-m]'].std(),1)
+        sigTMy = np.around(df['TwrBsMyt_[kN-m]'].std(),1)
+        Leq[k] = {'BMxb':LeqBMx, 'BMyb':LeqBMy,'BMxc':LeqBMx, 'BMyc':LeqBMy, 'TMy':LeqTMy, 'TMx':LeqTMx}
+        Sig[k] = {'BMxb':sigBMx, 'BMyb':sigBMy,'BMxc':sigBMx, 'BMyc':sigBMy, 'TMy':sigTMy, 'TMx':sigTMx}
+        print(Leq[k], k)
     # --- Ratios T1/T2
+    print('>>>> Ratios')
     SigRat={}
     LeqRat={}
     for k1 in Sig.keys():
         k = k1.replace('_T1','')
-        if k1.find('T1')>1:
-            k2 = k1.replace('T1','T2')
+        if k1.find('_T1')>1:
+            k2 = k1.replace('_T1','_T2')
             s1 = Sig[k1]
             s2 = Sig[k2]
             l1 = Leq[k1]
             l2 = Leq[k2]
-            SigRat[k]=dict( [(l, s2[l]/s1[l]) for l in s1.keys()  ] )
-            LeqRat[k]=dict( [(l, l2[l]/l1[l]) for l in l1.keys()  ] )
-
+            SigRat[k]=dict( [(l, np.around(s2[l]/s1[l],3)) for l in s1.keys()  ] )
+            LeqRat[k]=dict( [(l, np.around(l2[l]/l1[l],3)) for l in l1.keys()  ] )
+            print(k1, l1)
+            print(k2, l2)
+            print(k+ '_Rat', LeqRat[k])
 
     pkl = PickleFile()
     pkl['Leq']=Leq
@@ -113,21 +146,79 @@ if analyse:
 
 
 
-# --- Plot
+# --------------------------------------------------------------------------------}
+# --- Plot 
+# --------------------------------------------------------------------------------{
+colrsStabLight=[ lighten_color(c, factor=1.1) for c in colrsStab]
+prettyNames={}
+prettyNames['BMxb']='Blade edge moment'
+prettyNames['BMyb']='Blade flap moment'
+prettyNames['BMxc']='Blade edge moment (c)'
+prettyNames['BMyc']='Blade flap moment (c)'
+prettyNames['TMx']='Tower side-side moment'
+prettyNames['TMy']='Tower fore-aft moment'
+prettyStats={}
+prettyStats['SigRat']=r'$\sigma$'
+prettyStats['LeqRat']=r'$L_{eq}$'
 
-stats = PickleFile(outFileBase+'SigLeq.pkl')
-print(stats)
-Cases=['NoWAT', 'WAT', 'LES']
+Cases=['NoWAT', 'WAT05', 'WAT15', 'LES']
 
-var='BMy'
-sstat='SigRat'
-for stab in stabilities:
+if plot:
+    stats = PickleFile(outFileBase+'SigLeq.pkl')
+    print(stats)
+    #for var in ['BMxb','BMyb','BMxc','BMyc', 'TMy', 'TMx']:
+    for var in ['BMxb','BMyb', 'TMy', 'TMx']:
+        for sstat in ['SigRat','LeqRat']:
+    #for var in ['TMy']:
+    #    for sstat in ['LeqRat']:
+            fig,ax = plt.subplots(1, 1, sharey=False, figsize=(6.4,4.8)) # (6.4,4.8)
+            fig.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.11, hspace=0.20, wspace=0.20)
+            width=0.8
+            xticklabels=[]
+            xticks=[]
+            j=0
+            for iStab, stab in enumerate(stabilities):
+                for i,c in enumerate(Cases):
+                    k = stab+'_'+ c
+                    #ax.plot(k, stats[sstat][k][var])
+                    ax.bar(j, stats[sstat][k][var], width, label=stab.capitalize() if (i==0) else None, ec=colrsStab[iStab], fc=colrsStabLight[iStab])
+                    xticks.append(j)
+                    xticklabels.append(c.replace('WAT',''))
+                    j+=1
+                j+=1
+            if var.find('BMx')==0:
+                ax.set_ylim([0.9,1.1])
+            else:
+                ax.set_ylim([0,4.0])
+            ax.set_xticks(xticks)
+            ax.set_xticklabels(xticklabels)
+            ax.tick_params(direction='in', top=True, right=True, labelright=False, labeltop=False, which='both')
+            # ax.set_title(stab.capitalize())
+            figname = var+' ' + sstat
+            ax.set_title(prettyStats[sstat] + ' ' + prettyNames[var])
+            ax.set_xlabel('')
+            ax.set_ylabel(r'Ratio $T_2/T_1$ - '+prettyStats[sstat] + ' ' + prettyNames[var]+ ' [-]')
+            ax.legend()
+            filename=os.path.join(figDir, figname.replace(' ','_')+'.png')
+            fig.savefig(filename)
+    plt.show()
 
-    fig,ax = plt.subplots(1, 1, sharey=False, figsize=(6.4,4.8)) # (6.4,4.8)
-    fig.subplots_adjust(left=0.12, right=0.95, top=0.95, bottom=0.11, hspace=0.20, wspace=0.20)
-    for c in Cases:
-        k = stab+'_'+ c
-        ax.plot(k, stats[sstat][var])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 
 #             off=1.2*width/2
 #             off2=0
@@ -137,29 +228,8 @@ for stab in stabilities:
 #             ax.bar(iL+off2+off, U25_VC, width, label=labels[1], ec=cAD , fc=cVC)
 #             eps=np.abs((U25_AD-U25_VC)/U25_AD)
 #             ax.text(iL+off2,max(U25_AD,U25_VC)*1.0003,'{:.2f}%'.format(eps*100),fontsize=10,ha='center')
-
-
-    ax.set_xlabel('')
-    ax.set_ylabel(sstat+ ' '+ var)
-    ax.legend()
-plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#                 for bar in bar2:
+#                     bar.set_hatch('//')
 
 
 # import pdb; pdb.set_trace()
