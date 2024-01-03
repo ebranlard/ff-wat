@@ -10,6 +10,7 @@ from welib.essentials import *
 import sys
 sys.path.append('amr')
 from plothelper import *
+from helper_functions import *
 
 setFigureFont(13)
 

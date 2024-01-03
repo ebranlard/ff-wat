@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import glob
 import matplotlib.pyplot as plt
 import xarray
 # External
@@ -9,19 +10,33 @@ from welib.tools.curve_fitting import model_fit
 from welib.essentials import *
 
 AllCases={}
-AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'planeTimes':[129921], 'path':'02-iea15-2WT/neutral/'}
-AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'planeTimes':[121692], 'path':'02-iea15-2WT/stable/'}
-AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'planeTimes':[76826], 'path':'02-iea15-2WT/unstable'}
 
-AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'planeTimes':[129921], 'path':'02-iea15-1WT/neutral/'}
-AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'planeTimes':[121692], 'path':'02-iea15-1WT/stable/'}
-AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'planeTimes':[121692], 'path':'02-iea15-1WT/unstable/'}
+# caseDir='./'
+# AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'path':os.path.join(caseDir, '02-iea15-2WT/stable/')}
+# AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'path':os.path.join(caseDir, '02-iea15-2WT/neutral/')}
+# AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'path':os.path.join(caseDir, '02-iea15-2WT/unstable')}
+# 
+# AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'path':os.path.join(caseDir, '02-iea15-1WT/stable/')}
+# AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'path':os.path.join(caseDir, '02-iea15-1WT/neutral/')}
+# AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'path':os.path.join(caseDir, '02-iea15-1WT/unstable/')}
+# 
+# AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'path':os.path.join(caseDir, '02-iea15-0WT/stable/')}
+# AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'path':os.path.join(caseDir, '02-iea15-0WT/neutral/')}
+# AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'path':os.path.join(caseDir, '02-iea15-0WT/unstable/')}
 
-AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'planeTimes':[129921], 'path':'02-iea15-0WT/neutral/'}
-AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'planeTimes':[121692], 'path':'02-iea15-0WT/stable/'}
-AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'planeTimes':[121692], 'path':'02-iea15-0WT/unstable/'}
 
+caseDir = '/projects/tcwnd/rthedin/amr_runs/02_2turbine_coherence_inflow/'
+AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'path':os.path.join(caseDir, '01_2turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis3days_1ref_postFix2/')}
+AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'path':os.path.join(caseDir, '02_2turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2/')}
+AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'path':os.path.join(caseDir, '03_2turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref_postFix2/')}
 
+AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'path':os.path.join(caseDir, '01_1turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriol')}
+AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'path':os.path.join(caseDir, '02_1turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2/')}
+AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'path':os.path.join(caseDir, '03_1turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref_postFix2/')}
+
+AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'path':os.path.join(caseDir, '01_0turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriol')}
+AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'path':os.path.join(caseDir, '02_0turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2/')}
+AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'path':os.path.join(caseDir, '03_0turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref/')}
 
 
 def getSimParamsAMR(stability):
@@ -65,24 +80,30 @@ eddyFilter_Shr = {'Dmin':3, 'Dmax':25, 'Fmin':0.2, 'Exp':0.1}
 
 
 
-def readPlanes(outBase, ITimes, group, simCompleted=False):
-    DeltaI = np.diff(ITimes)
-
+def readPlanes(outBase, group, simCompleted=False, ITimes=None):
+    if ITimes is None:
+        # Figure out ITimes from list of *.nc files
+        n = len(os.path.basename(outBase))
+        filepaths = glob.glob(outBase+'*.nc')
+        filenames=[os.path.splitext(os.path.basename(f))[0] for f in filepaths]
+        ITimes = [int(f[n:]) for f in filenames]
+    ITimes.sort()
     ncPaths = [outBase+'{}.nc'.format(itime) for itime in ITimes ] 
     for ii, (itime, ncPath) in enumerate(zip(ITimes,ncPaths)):
         if not os.path.exists(ncPath):
             raise Exception('File not found '+ncPath)
         print('Reading: ',ncPath)
         sp = Sampling(ncPath)
-        ds0= sp.read_single_group(group, simCompleted=True).rename_dims({'samplingtimestep':'it'})
-        if ii==0:
-            ds=ds0
-        elif ii>0:
-            ds2 = ds.concat(ds0, join=right)
-            print('>>>> TODO Concat')
-            import pdb; pdb.set_trace()
+        ds = sp.read_single_group(group, simCompleted=True, var=['u'])
+        if ii>0:
+            # Add maximum sampling index
+            ds['samplingtimestep'] = ds['samplingtimestep'] + ds0.samplingtimestep.values[-1]+1
+            print('Concat...(extremely slow)')
+            ds = xarray.concat((ds0,ds), 'samplingtimestep')
+        # We store for future concatenation 
+        ds0 = ds
+    ds = ds.rename_dims({'samplingtimestep':'it'})
     return ds
-
 
 
 def readDataSet(filename):

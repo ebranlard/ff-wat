@@ -22,7 +22,7 @@ def saveHubHeightLines(caseName, Case, outDir='_out'):
         planeBase = os.path.join(Case['path'], 'post_processing', 'planesT{}'.format(iWT))
 
         with Timer('Reading...'):
-            ds = readPlanes(planeBase, Case['planeTimes'], group='pT{}'.format(iWT))
+            ds = readPlanes(planeBase, group='pT{}'.format(iWT))
             # ds.u # Shape ny x nz x nx x nt 
             ds['x'] = ds.x-xyWT[1][0] # NOTE we use wxWT[1] as a reference for both j
             ds['y'] = ds.y-xyWT[1][1]

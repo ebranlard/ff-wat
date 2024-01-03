@@ -54,7 +54,7 @@ dfTrajM.index = dfTrajM['Time_[s]'].astype(int)
 # --- Read 
 planeBase = os.path.join('amr', Case['path'], 'post_processing', 'planesT{}'.format(iWT))
 with Timer('Reading...'):
-    ds = readPlanes(planeBase, Case['planeTimes'], group='pT{}'.format(iWT))
+    ds = readPlanes(planeBase, group='pT{}'.format(iWT))
     ds['z'] = ds.z -(np.max(ds.z)+np.min(ds.z))/2
     ds['y'] = ds.y-xyWT[iWT][1]
     ds['x'] = np.around((ds.x-xyWT[iWT][0])/D)

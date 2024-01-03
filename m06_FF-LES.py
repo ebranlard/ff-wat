@@ -21,7 +21,8 @@ setFigureFont(13)
 stabilities=['stable','neutral']
 outFileBase = '_data/LES-FF'
 figDir      = '_data/_figs_LES-FF'
-colKeep= ['Time_[s]','RootMyb1_[kN-m]','RootMxb1_[kN-m]','RootMxc1_[kN-m]','RootMyc1_[kN-m]','TwrBsMyt_[kN-m]','TwrBsMxt_[kN-m]']
+# colKeep= ['Time_[s]','RootMyb1_[kN-m]','RootMxb1_[kN-m]','RootMxc1_[kN-m]','RootMyc1_[kN-m]','TwrBsMyt_[kN-m]','TwrBsMxt_[kN-m]']
+colKeep= ['Time_[s]','RootMyb1_[kN-m]','RootMxb1_[kN-m]','RootMxc1_[kN-m]','RootMyc1_[kN-m]','TwrBsMyt_[kN-m]','TwrBsMxt_[kN-m]','YawBrMzp_[kN-m]']
 # postPro=True
 postPro=False
 # plot=False
@@ -73,6 +74,10 @@ if postPro:
 
         # --- FAST.Farm
         # amr/02-iea15-2WT/neutral/IEA-15-240-RWT-Monopile.T1.conv.outb
+        dfs[stab+'_WATOpt_T1'] = readsafe(os.path.join('ff',stab, 'FF-WAT.T1.outb'))
+        dfs[stab+'_WATOpt_T2'] = readsafe(os.path.join('ff',stab, 'FF-WAT.T2.outb'))
+        dfs[stab+'_WATOptHR_T1'] = readsafe(os.path.join('ff',stab, 'FF-WAT-More.T1.outb'))
+        dfs[stab+'_WATOptHR_T2'] = readsafe(os.path.join('ff',stab, 'FF-WAT-More.T2.outb'))
         dfs[stab+'_LES_T1'] = readsafe(os.path.join('amr','02-iea15-2WT',stab, 'IEA-15-240-RWT-Monopile.T1.conv.outb'))
         dfs[stab+'_LES_T2'] = readsafe(os.path.join('amr','02-iea15-2WT',stab, 'IEA-15-240-RWT-Monopile.T2.conv.outb'))
         # ff/stable/FF-NoWAT.T1.outb
@@ -102,6 +107,7 @@ if postPro:
     # --- LEq / Sig
     Sig={}
     Leq={}
+    Muu={}
     for k,df in pkl.items():
         method ='fatpack'
         LeqBMxb = np.around(equivalent_load(df['Time_[s]'].values, df['RootMxb1_[kN-m]'].values, m=10, method=method),1)
@@ -110,17 +116,36 @@ if postPro:
         LeqBMy = np.around(equivalent_load(df['Time_[s]'].values, df['RootMyc1_[kN-m]'].values, m=10, method=method),1)
         LeqTMx = np.around(equivalent_load(df['Time_[s]'].values, df['TwrBsMxt_[kN-m]'].values, m=4 , method=method),1)
         LeqTMy = np.around(equivalent_load(df['Time_[s]'].values, df['TwrBsMyt_[kN-m]'].values, m=4 , method=method),1)
+        try:
+            Mz = df['YawBrMzp_[kN-m]'].iloc[:,0]
+        except:
+            Mz = df['YawBrMzp_[kN-m]']
+
+        LeqTMz = np.around(equivalent_load(df['Time_[s]'].values, Mz.values, m=4 , method=method),1)
         sigBMxb= np.around(df['RootMxb1_[kN-m]'].std(),1)
         sigBMyb= np.around(df['RootMyb1_[kN-m]'].std(),1)
         sigBMx = np.around(df['RootMxc1_[kN-m]'].std(),1)
         sigBMy = np.around(df['RootMyc1_[kN-m]'].std(),1)
+        sigBMz = np.around(df['RootMyc1_[kN-m]'].std(),1)
         sigTMx = np.around(df['TwrBsMxt_[kN-m]'].std(),1)
         sigTMy = np.around(df['TwrBsMyt_[kN-m]'].std(),1)
-        Leq[k] = {'BMxb':LeqBMx, 'BMyb':LeqBMy,'BMxc':LeqBMx, 'BMyc':LeqBMy, 'TMy':LeqTMy, 'TMx':LeqTMx}
-        Sig[k] = {'BMxb':sigBMx, 'BMyb':sigBMy,'BMxc':sigBMx, 'BMyc':sigBMy, 'TMy':sigTMy, 'TMx':sigTMx}
+        sigTMz = np.around(Mz.std(),1)
+
+        muuBMxb= np.around(df['RootMxb1_[kN-m]'].mean(),2)
+        muuBMyb= np.around(df['RootMyb1_[kN-m]'].mean(),2)
+        muuBMx = np.around(df['RootMxc1_[kN-m]'].mean(),2)
+        muuBMy = np.around(df['RootMyc1_[kN-m]'].mean(),2)
+        muuTMx = np.around(df['TwrBsMxt_[kN-m]'].mean(),2)
+        muuTMy = np.around(df['TwrBsMyt_[kN-m]'].mean(),2)
+        muuTMz = np.around(Mz.mean(),4)
+
+        Leq[k] = {'BMxb':LeqBMx, 'BMyb':LeqBMy,'BMxc':LeqBMx, 'BMyc':LeqBMy, 'TMy':LeqTMy, 'TMx':LeqTMx , 'TMz':LeqTMz}
+        Sig[k] = {'BMxb':sigBMx, 'BMyb':sigBMy,'BMxc':sigBMx, 'BMyc':sigBMy, 'TMy':sigTMy, 'TMx':sigTMx , 'TMz':sigTMz}
+        Muu[k] = {'BMxb':muuBMx, 'BMyb':muuBMy,'BMxc':muuBMx, 'BMyc':muuBMy, 'TMy':muuTMy, 'TMx':muuTMx , 'TMz':muuTMz}
         print(Leq[k], k)
     # --- Ratios T1/T2
     print('>>>> Ratios')
+    MuuRat={}
     SigRat={}
     LeqRat={}
     for k1 in Sig.keys():
@@ -131,17 +156,22 @@ if postPro:
             s2 = Sig[k2]
             l1 = Leq[k1]
             l2 = Leq[k2]
+            m1 = Muu[k1]
+            m2 = Muu[k2]
             SigRat[k]=dict( [(l, np.around(s2[l]/s1[l],3)) for l in s1.keys()  ] )
             LeqRat[k]=dict( [(l, np.around(l2[l]/l1[l],3)) for l in l1.keys()  ] )
+            MuuRat[k]=dict( [(l, np.around(m2[l]/m1[l],3)) for l in m1.keys()  ] )
             print(k1, l1)
             print(k2, l2)
             print(k+ '_Rat', LeqRat[k])
 
     pkl = PickleFile()
-    pkl['Leq']=Leq
+    pkl['Muu']=Muu
     pkl['Sig']=Sig
-    pkl['LeqRat']=LeqRat
+    pkl['Leq']=Leq
+    pkl['MuuRat']=MuuRat
     pkl['SigRat']=SigRat
+    pkl['LeqRat']=LeqRat
     pkl.write(outFileBase+'SigLeq.pkl')
 
 
@@ -157,18 +187,22 @@ prettyNames['BMxc']='Blade edge moment (c)'
 prettyNames['BMyc']='Blade flap moment (c)'
 prettyNames['TMx']='Tower side-side moment'
 prettyNames['TMy']='Tower fore-aft moment'
+prettyNames['TMz']='Tower yaw'
 prettyStats={}
 prettyStats['SigRat']=r'$\sigma$'
 prettyStats['LeqRat']=r'$L_{eq}$'
+prettyStats['MuuRat']=r'$\mu$'
 
-Cases=['NoWAT', 'WAT05', 'WAT15', 'LES']
+# Cases=['NoWAT', 'WAT05', 'WAT15', 'WATOpt', 'WATOptHR', 'LES']
+Cases=['NoWAT', 'WATOpt', 'LES']
 
 if plot:
     stats = PickleFile(outFileBase+'SigLeq.pkl')
     print(stats)
     #for var in ['BMxb','BMyb','BMxc','BMyc', 'TMy', 'TMx']:
-    for var in ['BMxb','BMyb', 'TMy', 'TMx']:
-        for sstat in ['SigRat','LeqRat']:
+#     for var in ['BMyb', 'TMy', 'TMz']:
+    for var in ['TMy','TMz']:
+        for sstat in ['SigRat']: #,'LeqRat','MuuRat']:
     #for var in ['TMy']:
     #    for sstat in ['LeqRat']:
             fig,ax = plt.subplots(1, 1, sharey=False, figsize=(6.4,4.8)) # (6.4,4.8)
@@ -186,7 +220,10 @@ if plot:
                     xticklabels.append(c.replace('WAT',''))
                     j+=1
                 j+=1
-            if var.find('BMx')==0:
+            if sstat.find('MuuRat')==0:
+                ax.set_ylim([0.0,1.1])
+                pass
+            elif var.find('BMx')==0:
                 ax.set_ylim([0.9,1.1])
             else:
                 ax.set_ylim([0,4.0])

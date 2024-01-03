@@ -29,7 +29,7 @@ def findWakeCenters(caseName, Case, plot=False, iTimeMin=500, outDir='_out'):
         # --- Read 
         planeBase = os.path.join(Case['path'], 'post_processing', 'planesT{}'.format(iWT))
         with Timer('Reading...'):
-            ds = readPlanes(planeBase, Case['planeTimes'], group='pT{}'.format(iWT))
+            ds = readPlanes(planeBase, group='pT{}'.format(iWT))
             ds['z'] = ds.z -(np.max(ds.z)+np.min(ds.z))/2
             ds['y'] = ds.y-xyWT[iWT][1]
             ds['x'] = np.around((ds.x-xyWT[iWT][0])/D)
@@ -88,7 +88,9 @@ def findWakeCenters(caseName, Case, plot=False, iTimeMin=500, outDir='_out'):
 
 if __name__ == '__main__':
     caseNames =[]
-#     caseNames += list(AllCases.keys())
+    caseNames += list(AllCases.keys())
+
+    caseNames =[]
     caseNames += ['neutral2WT']
     caseNames += ['stable2WT'] 
     caseNames += ['unstable2WT'] 
