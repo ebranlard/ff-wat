@@ -24,20 +24,18 @@ AllCases={}
 # AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'path':os.path.join(caseDir, '02-iea15-0WT/neutral/')}
 # AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'path':os.path.join(caseDir, '02-iea15-0WT/unstable/')}
 
-
 caseDir = '/projects/tcwnd/rthedin/amr_runs/02_2turbine_coherence_inflow/'
-AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'path':os.path.join(caseDir, '01_2turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis3days_1ref_postFix2/')}
-AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'path':os.path.join(caseDir, '02_2turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2/')}
-AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'path':os.path.join(caseDir, '03_2turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref_postFix2/')}
-
-AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'path':os.path.join(caseDir, '01_1turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriol')}
-AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'path':os.path.join(caseDir, '02_1turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2/')}
-AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'path':os.path.join(caseDir, '03_1turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref_postFix2/')}
-
-AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'path':os.path.join(caseDir, '01_0turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriol')}
-AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'path':os.path.join(caseDir, '02_0turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2/')}
-AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'path':os.path.join(caseDir, '03_0turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref/')}
-
+AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'path':os.path.join(caseDir, '01_2turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis3days_1ref_postFix2')}
+AllCases['neutral2WT']  = {'stability':'neutral' ,'nWT':2, 'path':os.path.join(caseDir, '02_2turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2')}
+AllCases['unstable2WT'] = {'stability':'unstable','nWT':2, 'path':os.path.join(caseDir, '03_2turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref_postFix2')}
+ 
+AllCases['stable1WT']   = {'stability':'stable'  ,'nWT':1, 'path':os.path.join(caseDir, '01_1turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis3days_1ref_postFix2')}
+AllCases['neutral1WT']  = {'stability':'neutral' ,'nWT':1, 'path':os.path.join(caseDir, '02_1turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref_postFix2')}
+AllCases['unstable1WT'] = {'stability':'unstable','nWT':1, 'path':os.path.join(caseDir, '03_1turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref_postFix2')}
+ 
+AllCases['stable0WT']   = {'stability':'stable'  ,'nWT':0, 'path':os.path.join(caseDir, '01_0turbine_stable.W.8at150.20dTInv_0.25cooling_0.05z0_450zi_3.84x1.28x0.9km_res2.5m_coriolis3days_1ref')}
+AllCases['neutral0WT']  = {'stability':'neutral' ,'nWT':0, 'path':os.path.join(caseDir, '02_0turbine_neutral.W.8at150.10dTInv_0.75z0_750zi_3.84x1.28x0.9km_res2.5m_1ref')}
+AllCases['unstable0WT'] = {'stability':'unstable','nWT':0, 'path':os.path.join(caseDir, '03_0turbine_unstable.W.8at150.20dTInv_0.05q_0.75z0_850zi_10.24x5.12x0.96km_res5m_2ref')}
 
 def getSimParamsAMR(stability):
     dt=1
