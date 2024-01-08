@@ -23,8 +23,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 # Local 
-import weio
-from weio.vtk_file import VTKFile
+import welib.weio as weio
+from welib.weio.vtk_file import VTKFile
 from helper_functions import *
 import xarray as xr
 

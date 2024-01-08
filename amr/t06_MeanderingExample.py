@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatch
 # Local 
-import weio
+import welib.weio as weio
 from welib.essentials import *
 
 from samwich.waketrackers import track, WakeTracker

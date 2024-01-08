@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 # Local 
-import weio
+import welib.weio as weio
 from helper_functions import track_wake_center_plane
 
 

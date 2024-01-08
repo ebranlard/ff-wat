@@ -20,9 +20,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 # Local 
-import weio
-from weio.vtk_file import VTKFile
-from weio.fast_input_file import FASTInputFile
+import welib.weio
+from welib.weio.vtk_file import VTKFile
+from welib.weio.fast_input_file import FASTInputFile
 from helper_functions import *
 import xarray as xr
 

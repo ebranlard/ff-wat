@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import xarray as xr
-from weio.vtk_file import VTKFile
+from welib.weio.vtk_file import VTKFile
 
 def mygradient(y, x):
     # Forward differences;

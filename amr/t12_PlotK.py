@@ -4,8 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import xarray
 # Local 
-import weio
-from weio.pickle_file import PickleFile
+import welib.weio as weio
+from welib.weio.pickle_file import PickleFile
 from welib.essentials import *
 from welib.tools.curve_fitting import model_fit
 from helper_functions import *
