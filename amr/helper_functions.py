@@ -198,10 +198,11 @@ def readPlanesOld(outBase, group, simCompleted=False, ITimes=None):
     return ds
 
 
-def readDataSet(filename):
+def readDataSet(filename, verbose=False):
     if not os.path.exists(filename):
         raise Exception('File not found:'+ filename)
-    print('Reading:', filename)
+    if verbose:
+        print('Reading:', filename)
     try:
         return xarray.open_dataset(filename)
     except Exception as e:

@@ -14,7 +14,7 @@ def plotHH(caseName, Case, outDir='_out', figDir='_figs', Meander=False, tMin=50
     print(f'--- plotHH - Case: {caseName}')
     print(f'-----------------------------------------------------------------------')
 
-    outDir = os.path.join(outDir, 'planes')
+    outDir = os.path.join(outDir, 'lines')
     figDir = os.path.join(figDir, '_figs_planes')
     if not os.path.exists(figDir):
         os.makedirs(figDir)
@@ -25,10 +25,10 @@ def plotHH(caseName, Case, outDir='_out', figDir='_figs', Meander=False, tMin=50
 
     # --- Derived parameters
     U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(stability)
-    datapath = os.path.join(outDir, caseName)
+    datapath = os.path.join(outDir, caseName+'_')
     figbase = os.path.join(figDir, prefix+caseName)
-    ds1 = readDataSet(os.path.join(datapath, prefix+'WT1.nc_small'))
-    ds2 = readDataSet(os.path.join(datapath, prefix+'WT2.nc_small'))
+    ds1 = readDataSet(os.path.join(datapath+ prefix+'WT1.nc_small'))
+    ds2 = readDataSet(os.path.join(datapath+ prefix+'WT2.nc_small'))
 
     y = ds1.y.values
     t = ds1.samplingtimestep.values * dt
@@ -78,9 +78,8 @@ def plotHH(caseName, Case, outDir='_out', figDir='_figs', Meander=False, tMin=50
     fig.savefig(figname+'.png')
 
 if __name__ == '__main__':
+    AllCases={}
+    caseDir='./'
+    AllCases['stable2WT']   = {'stability':'stable'  ,'nWT':2, 'path':os.path.join(caseDir, '02-iea15-2WT/stable/')}
     for caseName, Case in AllCases.items():
-        try:
-            plotHH(caseName, Case, Meander=False)
-            OK(caseName)
-        except:
-            FAIL(caseName)
+        plotHH(caseName, Case, Meander=False, outDir='_out_all')
