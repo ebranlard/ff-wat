@@ -13,7 +13,7 @@ def plotCompareFreeWake(stability, outDir='_out', figDir='_figs', Meander=False,
     print(f'-----------------------------------------------------------------------')
     print(f'--- plotCompareFreeWake - Case: {stability}')
     print(f'-----------------------------------------------------------------------')
-    outDir = os.path.join(outDir, 'planes')
+    outDir = os.path.join(outDir, 'lines')
     figDir = os.path.join(figDir, '_figs_comp02')
     if not os.path.exists(figDir):
         os.makedirs(figDir)
@@ -25,13 +25,13 @@ def plotCompareFreeWake(stability, outDir='_out', figDir='_figs', Meander=False,
 
     # --- Derived parameters
     U0, dt, D, xyWT1, xyWT2, xPlanes = getSimParamsAMR(stability)
-    datapath0 = os.path.join(outDir, stability+'0WT')
-    datapath2 = os.path.join(outDir, stability+'2WT')
-    figbase = os.path.join(figDir, prefix)
-    ds01= readDataSet(os.path.join(datapath0, prefix+'WT1.nc_small'))
-    ds21= readDataSet(os.path.join(datapath2, prefix+'WT1.nc_small'))
-    ds02= readDataSet(os.path.join(datapath0, prefix+'WT2.nc_small'))
-    ds22= readDataSet(os.path.join(datapath2, prefix+'WT2.nc_small'))
+    datapath0 = os.path.join(outDir, stability+'0WT_')
+    datapath2 = os.path.join(outDir, stability+'2WT_')
+    figbase = os.path.join(figDir, stability+'_'+prefix)
+    ds01= readDataSet(os.path.join(datapath0+ prefix+'WT1.nc_small'))
+    ds21= readDataSet(os.path.join(datapath2+ prefix+'WT1.nc_small'))
+    ds02= readDataSet(os.path.join(datapath0+ prefix+'WT2.nc_small'))
+    ds22= readDataSet(os.path.join(datapath2+ prefix+'WT2.nc_small'))
 
     # --- Intersection of time
     ITime = np.array(common_itime(ds01, ds21))
@@ -246,9 +246,13 @@ if __name__ == '__main__':
     # IPlot += [ 0] # Velocity at Point
     # IPlot += [ 1] # Mean velocity
     # IPlot += [ 2] # TKE
-    IPlot += [ 3] # Var
+    #IPlot += [ 3] # Var
     # IPlot += [ 4] # k^2 / Var
-
-    
-    plotCompareFreeWake('neutral', Meander=False, IPlot=None)
+    #plotCompareFreeWake('neutral', Meander=False, IPlot=None)
+    # --- Compare 0WT and 2WT - Inertial
+    outDir = '_out_all'
+    figDir = '_out_all'
+    stabilities=['neutral']
+    for stability in stabilities:
+        plotCompareFreeWake(stability, Meander=False, outDir=outDir, figDir=figDir)
     plt.show()
